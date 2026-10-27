@@ -52,3 +52,16 @@ product must answer, the features, the domain rules (money, current salary, norm
 what is out of scope and why, and the non-functional requirements.
 
 **My review:** _(to fill in after review — what I changed and why)_
+
+## 5. Design document
+**Prompt (summary):** Produce the design: architecture, schema, API, the current-salary
+strategy, testing and performance.
+
+**Output:** [`design.md`](design.md).
+
+**Key trade-off the AI surfaced:** computing the current salary at read time versus caching a
+pointer on the employee. A cached pointer goes stale when a future-dated raise takes effect
+without any write, so it would need a scheduled job. **Decision:** compute at read time with
+`DISTINCT ON` and a composite index, and pass `as_of` explicitly so tests are deterministic.
+
+**My review:** _(to fill in)_
