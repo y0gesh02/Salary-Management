@@ -50,8 +50,9 @@ class EmployeeSearch
   def sorted(scope)
     key, direction = sort
     scope = scope.joins(current_salaries_join) if key == "annual_salary"
+    column = Arel.sql(SORT_COLUMNS.fetch(key)) # whitelisted SQL, never user input
     # NULLS LAST keeps employees without a salary at the end; id makes the order total, so pages never overlap.
-    scope.order(Arel.sql("#{SORT_COLUMNS.fetch(key)} #{direction} NULLS LAST, employees.id ASC"))
+    scope.order(column.public_send(direction).nulls_last, id: :asc)
   end
 
   def current_salaries_join
@@ -63,9 +64,9 @@ class EmployeeSearch
   def sort
     requested = @params[:sort].to_s
     key = requested.delete_prefix("-")
-    return [ DEFAULT_SORT, "ASC" ] unless SORT_COLUMNS.key?(key)
+    return [ DEFAULT_SORT, :asc ] unless SORT_COLUMNS.key?(key)
 
-    [ key, requested.start_with?("-") ? "DESC" : "ASC" ]
+    [ key, requested.start_with?("-") ? :desc : :asc ]
   end
 
   def page

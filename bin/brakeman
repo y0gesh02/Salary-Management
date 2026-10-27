@@ -2,6 +2,8 @@
 require "rubygems"
 require "bundler/setup"
 
-ARGV.unshift("--ensure-latest")
+# --ensure-latest fails the scan if a newer Brakeman exists, but needs rubygems.org.
+# Set BRAKEMAN_OFFLINE=1 where that network call hangs (CI always runs the check).
+ARGV.unshift("--ensure-latest") unless ENV["BRAKEMAN_OFFLINE"]
 
 load Gem.bin_path("brakeman", "brakeman")

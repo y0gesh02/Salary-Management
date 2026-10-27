@@ -9,6 +9,7 @@ class Employee < ApplicationRecord
   validates :full_name, :email, :job_title, :department, :country_code, :hire_date, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, uniqueness: true, allow_blank: true
   validates :country_code, inclusion: { in: Country.codes, message: "is not a supported country" }, allow_blank: true
+  validate :hire_date_not_after_first_salary, if: -> { persisted? && will_save_change_to_hire_date? }
 
   def country
     Country.find(country_code)
@@ -16,5 +17,14 @@ class Employee < ApplicationRecord
 
   def current_salary(as_of: Date.current)
     salary_records.current_as_of(as_of).first
+  end
+
+  private
+
+  def hire_date_not_after_first_salary
+    first_effective_date = salary_records.minimum(:effective_date)
+    return if hire_date.blank? || first_effective_date.nil? || hire_date <= first_effective_date
+
+    errors.add(:hire_date, "can't be after the first salary record (#{first_effective_date.iso8601})")
   end
 end

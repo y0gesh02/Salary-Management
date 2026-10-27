@@ -204,3 +204,26 @@ salary history, and filter options.
   It was replaced with unambiguous names to keep the suite deterministic across machines.
 - Also caught in review before running: a leftover, unused block in the query-count spec.
 - Measured on the 10k seed: 2–22 ms per directory request (recorded in design.md §9).
+
+## 14. Employee API, write side (TDD)
+**Prompt (summary):** Create (with the first salary), edit, delete, record a salary change, and one
+error format.
+
+**What happened:**
+- `Employees::Create` saves the profile and the first salary (effective from the hire date) in one
+  transaction. It validates both first and returns all errors together. Salary errors are keyed
+  `initial_salary.<field>` so the form can place them.
+- Edit changes profile fields only. Pay changes always go through
+  `POST /api/employees/:id/salary_records`, and a spec checks that salary fields sent to edit are
+  ignored. The history stays append-only.
+- New product rule found while writing specs: the hire date can't be moved after the first salary
+  record, or the pay history would start before the person was hired.
+- One error contract: `422 { errors: { field: [messages] } }`, `400` for a missing body, `404` for
+  unknown records.
+- **Brakeman found a real issue in AI-written code:** `EmployeeSearch` built `ORDER BY` with string
+  interpolation. It was safe (whitelisted column, ASC/DESC only), but not provably so. It was
+  rewritten with Arel order nodes (`column.desc.nulls_last`), with no interpolation, and it
+  produces the same SQL.
+- **Root cause of the slow Brakeman runs (open since §8):** the Rails binstub passes
+  `--ensure-latest`, which calls rubygems.org, and the local network to it hangs. Added an opt-in
+  `BRAKEMAN_OFFLINE=1` for local runs. CI still runs the version check.

@@ -91,4 +91,21 @@ RSpec.describe Employee do
       expect(employee.current_salary(as_of: Date.new(2025, 6, 15))).to be_nil
     end
   end
+
+  describe "hire_date changes" do
+    let(:employee) { create(:employee, hire_date: Date.new(2022, 1, 1)) }
+
+    before { create(:salary_record, employee:, effective_date: Date.new(2022, 1, 1)) }
+
+    it "can move earlier" do
+      expect(employee.update(hire_date: Date.new(2021, 6, 1))).to be(true)
+    end
+
+    it "cannot move after the first salary record, or the pay history would predate the hire" do
+      employee.hire_date = Date.new(2022, 2, 1)
+
+      expect(employee).not_to be_valid
+      expect(employee.errors[:hire_date]).to include("can't be after the first salary record (2022-01-01)")
+    end
+  end
 end

@@ -7,7 +7,9 @@ Rails.application.routes.draw do
 
   namespace :api do
     resource :session, only: %i[show create destroy]
-    resources :employees, only: %i[index show]
+    resources :employees, only: %i[index show create update destroy] do
+      resources :salary_records, only: :create
+    end
     resource :filters, only: :show
   end
 

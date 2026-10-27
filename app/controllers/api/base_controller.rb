@@ -11,6 +11,10 @@ module Api
       render json: { error: "Not found" }, status: :not_found
     end
 
+    rescue_from ActionController::ParameterMissing do |error|
+      render json: { error: error.message }, status: :bad_request
+    end
+
     rescue_from ActionController::InvalidAuthenticityToken do
       render json: { error: "Invalid or missing CSRF token" }, status: :forbidden
     end
@@ -21,6 +25,11 @@ module Api
       return @current_user if defined?(@current_user)
 
       @current_user = User.find_by(id: session[:user_id])
+    end
+
+    # One error shape for every form: { errors: { "field" => ["message", ...] } }
+    def render_validation_errors(errors)
+      render json: { errors: errors.to_hash.transform_keys(&:to_s) }, status: :unprocessable_content
     end
 
     def require_login
