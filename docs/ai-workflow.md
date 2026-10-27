@@ -127,3 +127,22 @@ serve the built app.
 - **AI mistake caught in review:** the first draft defined `ALL` inside a `Data.define` block,
   which would have created a top-level `::ALL` constant. Rewritten as
   `class Country < Data.define(...)`, and verified that `::ALL` is not defined.
+
+## 10. Domain core: SalaryRecord and the current-salary rule (TDD)
+**Prompt (summary):** Implement the salary history and the "current salary" definition test-first.
+
+**What happened:**
+- Specs first (red), with explicit dates and no reliance on the real clock: the latest past record
+  wins; a record effective exactly on `as_of` counts; future-dated raises are ignored; a same-date
+  tie goes to the most recently created record; one record per employee; none before the first salary.
+- Other rules: amount > 0 and stored as `decimal(14,2)` (no float rounding); a supported ISO 4217
+  currency; period `annual` or `monthly`; effective date not before the hire date (a product rule
+  added while designing the specs); `annual_amount` = monthly × 12.
+- **Append-only** in both layers: `readonly?` once persisted (update and destroy raise), no `updated_at`
+  column, and history removed only through the DB `ON DELETE CASCADE` when the employee is deleted.
+- **One definition of the rule:** `Employee#current_salary` reuses the `SalaryRecord.current_as_of`
+  scope (`DISTINCT ON` + composite index), so the directory, insights and the employee page
+  cannot disagree.
+- **Verifying the tests themselves:** all specs passed on the first run, so I deliberately broke the
+  code twice (flipped the tie-break; excluded the `as_of` day). Each mutation was caught by exactly
+  the spec written for it. Then I restored the code.

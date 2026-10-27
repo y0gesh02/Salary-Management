@@ -68,4 +68,27 @@ RSpec.describe Employee do
       expect(build(:employee, country_code: "GB").country.name).to eq("United Kingdom")
     end
   end
+
+  describe "#current_salary" do
+    let(:employee) { create(:employee, hire_date: Date.new(2022, 1, 1)) }
+
+    it "is the salary record in effect on the given date" do
+      create(:salary_record, employee:, effective_date: Date.new(2022, 1, 1), amount: 100)
+      raise_2024 = create(:salary_record, employee:, effective_date: Date.new(2024, 4, 1), amount: 200)
+      create(:salary_record, employee:, effective_date: Date.new(2026, 1, 1), amount: 300)
+
+      expect(employee.current_salary(as_of: Date.new(2025, 6, 15))).to eq(raise_2024)
+    end
+
+    it "defaults to today" do
+      past = create(:salary_record, employee:, effective_date: Date.new(2022, 1, 1))
+      create(:salary_record, employee:, effective_date: Date.current + 1)
+
+      expect(employee.current_salary).to eq(past)
+    end
+
+    it "is nil before any salary has taken effect" do
+      expect(employee.current_salary(as_of: Date.new(2025, 6, 15))).to be_nil
+    end
+  end
 end
