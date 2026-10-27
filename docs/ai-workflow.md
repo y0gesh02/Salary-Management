@@ -247,3 +247,24 @@ error format.
   bug into a 400 that leaks an internal message. It now rescues only `SalaryStatistics::UnknownGrouping`.
 - **A wrong benchmark caught:** the first timing (1.3 ms) was a query-cache hit from the warm-up call.
   Re-measured as the median of 10 runs: 11–17 ms. Only the real numbers are recorded in design.md.
+
+## 16. Frontend: API client, login and app shell
+**Prompt (summary):** A typed API client, login, protected routes and the layout.
+
+**What happened:**
+- `lib/api.ts` encodes the API contract: same-origin cookie, `X-CSRF-Token` on non-GET requests,
+  `ApiError` carrying `status` and the 422 `fieldErrors`, empty query params dropped.
+- Session via TanStack Query (`useSession`, `useLogin`, `useLogout`). The CSRF token is refreshed
+  from every session response, because Rails rotates it on login. Logout drops all cached salary
+  data. Any 401 (an expired session) re-checks the session, and `RequireAuth` redirects to login,
+  then returns the user to the page they asked for. 4xx errors are not retried.
+- **Supply-chain check:** shadcn's init added an unfamiliar dependency, `cn`. I verified it before
+  accepting it: the only npm maintainer is `shadcn` (the same account as the `shadcn` CLI), the
+  repo is `shadcn-ui/cn`, and it has no install scripts. It replaces `clsx` + `tailwind-merge`.
+- **Process slip, owned:** this chunk's code was written before its tests, unlike every backend
+  step. To compensate, the tests (13, against a small `fetch` fake that drives the real router and
+  guards) were mutation-checked: removing the CSRF header and ignoring 401s each failed the right
+  tests. Back to test-first for the next chunks.
+- Verified on the real stack (Rails + Vite proxy, curl with a cookie jar): 403 without the CSRF
+  token, login with it, the authed directory returns seeded data, 401 without a session, and the
+  cookie is `httponly; samesite=lax`.
