@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_27_112547) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_27_112904) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_112547) do
     t.check_constraint "amount > 0::numeric", name: "salary_records_amount_positive"
     t.check_constraint "currency::text ~ '^[A-Z]{3}$'::text", name: "salary_records_currency_format"
     t.check_constraint "period::text = ANY (ARRAY['annual'::character varying, 'monthly'::character varying]::text[])", name: "salary_records_period_valid"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
   end
 
   add_foreign_key "salary_records", "employees", on_delete: :cascade

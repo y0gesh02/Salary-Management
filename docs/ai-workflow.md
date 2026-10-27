@@ -146,3 +146,23 @@ serve the built app.
 - **Verifying the tests themselves:** all specs passed on the first run, so I deliberately broke the
   code twice (flipped the tie-break; excluded the `as_of` day). Each mutation was caught by exactly
   the spec written for it. Then I restored the code.
+
+## 11. Authentication (TDD)
+**Prompt (summary):** Single HR Manager login with session cookies, secure by default.
+
+**What happened:**
+- Specs first: login and logout; case-insensitive email; the same error for a wrong password and an
+  unknown email (no account enumeration); rate limiting (10 attempts / 3 min → 429); CSRF rejected
+  without a token and accepted with one; every API controller requires login by default.
+- `Api::BaseController` requires login on every action. Only `SessionsController` opts out.
+  `User.authenticate_by` (timing-safe), `reset_session` on login (prevents session fixation),
+  a 12-character minimum password, and a cookie that is HttpOnly, SameSite=Lax, Secure in production
+  and expires after 12 hours.
+- CSRF: `GET /api/session` returns the token, which the frontend sends as `X-CSRF-Token`. It is
+  returned again after login because `reset_session` rotates it.
+- Config found while writing specs: the test env used `null_store`, so rate limiting would silently
+  never trigger. Switched to `memory_store`, cleared before every example. Production now uses an
+  explicit `memory_store`. That is fine for a single free-tier instance, and the trade-off is noted
+  in the config.
+- Review: removed a dead `current_user` override that the AI had added. Mutation-checked the CSRF
+  setting and the login guard, and both were caught.

@@ -5,6 +5,10 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
+  namespace :api do
+    resource :session, only: %i[show create destroy]
+  end
+
   # Everything else that is an HTML page request belongs to the React app,
   # which does its own client-side routing. Must stay the last route.
   root "spa#index"

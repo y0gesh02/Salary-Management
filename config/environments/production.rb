@@ -45,6 +45,9 @@ Rails.application.configure do
 
   # Replace the default in-process memory cache store with a durable alternative.
   # config.cache_store = :mem_cache_store
+  # A single web instance on the free tier, so an in-process cache is enough; it backs
+  # login rate limiting. With more instances, move to a shared store (Redis/Solid Cache).
+  config.cache_store = :memory_store
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   # config.active_job.queue_adapter = :resque
