@@ -10,7 +10,7 @@ const railsUrl = process.env.RAILS_URL ?? 'http://localhost:3000'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: { '@': path.resolve(__dirname, './src') },
+    alias: { '@': path.resolve(import.meta.dirname, './src') },
   },
   server: {
     // Same-origin in development too: the browser talks only to Vite,

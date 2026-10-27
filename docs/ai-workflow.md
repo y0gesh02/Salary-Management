@@ -99,3 +99,17 @@ serve the built app.
   It was replaced with a routing spec so the suite stays deterministic.
 - The shadcn-generated `components/ui/**` is exempted from one fast-refresh lint rule, so
   generated code is not hand-edited.
+
+## 8. Continuous integration
+**Prompt (summary):** Add CI that runs every quality gate.
+
+**What happened:**
+- Rails 8.1's `bin/ci` (`config/ci.rb`) is the single definition of CI: RuboCop,
+  bundler-audit, Brakeman, RSpec, and frontend lint, type check, tests and build. GitHub Actions
+  just runs `bin/ci` against a Postgres 17 service, so local runs and CI runs cannot drift apart.
+- **Brakeman flagged Ruby 3.2.2 as end-of-life** (support ended 2026-03-31). The warning was
+  fixed rather than suppressed: the project moved to Ruby 3.4.4 (supported into 2028) in
+  `.ruby-version` and the Dockerfile.
+- Fixed a Vite deprecation warning (`__dirname` → `import.meta.dirname`).
+- Open observation: Brakeman once took over 2 minutes inside `bin/ci`, but about 4 s on its own.
+  I couldn't reproduce it, so I'm watching it.
