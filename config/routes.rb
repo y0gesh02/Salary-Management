@@ -11,6 +11,7 @@ Rails.application.routes.draw do
       resources :salary_records, only: :create
     end
     resource :filters, only: :show
+    get "insights/salaries", to: "insights#salaries"
   end
 
   # Everything else that is an HTML page request belongs to the React app,

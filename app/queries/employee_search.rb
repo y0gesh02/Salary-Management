@@ -34,12 +34,8 @@ class EmployeeSearch
   private
 
   def filtered
-    scope = Employee.all
-    scope = scope.where(country_code: @params[:country].to_s.upcase) if @params[:country].present?
-    scope = scope.where(department: @params[:department]) if @params[:department].present?
-    scope = scope.where(job_title: @params[:job_title]) if @params[:job_title].present?
-    scope = matching_text(scope) if @params[:q].present?
-    scope
+    scope = Employee.filtered_by(**@params.slice(:country, :department, :job_title))
+    @params[:q].present? ? matching_text(scope) : scope
   end
 
   def matching_text(scope)
@@ -56,7 +52,7 @@ class EmployeeSearch
   end
 
   def current_salaries_join
-    current = SalaryRecord.current_as_of(@as_of).select("#{SalaryRecord::ANNUAL_AMOUNT_SQL} AS annual_amount")
+    current = SalaryRecord.current_with_annual_amount_as_of(@as_of)
     "LEFT JOIN (#{current.to_sql}) current_salaries ON current_salaries.employee_id = employees.id"
   end
 

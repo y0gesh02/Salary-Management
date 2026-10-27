@@ -28,6 +28,11 @@ class SalaryRecord < ApplicationRecord
       .reorder("salary_records.employee_id", effective_date: :desc, id: :desc)
   }
 
+  # Current records plus an `annual_amount` column, to join against for sorting and statistics.
+  def self.current_with_annual_amount_as_of(as_of)
+    current_as_of(as_of).select("#{ANNUAL_AMOUNT_SQL} AS annual_amount")
+  end
+
   def annual_amount
     monthly? ? amount * MONTHS_PER_YEAR : amount
   end

@@ -232,7 +232,8 @@ scope for v1. A single smoke test may be added if time allows.
 - **Directory, measured on the 10k seed** (fixed three queries per page): default page 2 ms,
   text search 22 ms, country + department filter sorted by annual salary 12 ms, last page of
   100 rows 20 ms, employee detail with history 5 ms.
-- **Insights:** a single aggregate query per request. Response time and query plans are
+- **Insights:** a single aggregate query per request. Measured on the 10k seed (median of
+  10 runs): by country 15 ms, by department 17 ms, by job title within India 11 ms. Response time and query plans are
   checked against the 10,000-employee seed and recorded here.
 - **N+1 queries:** avoided through explicit joins and preloading, and checked in request specs.
 

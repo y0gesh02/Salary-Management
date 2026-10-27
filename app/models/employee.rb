@@ -11,6 +11,15 @@ class Employee < ApplicationRecord
   validates :country_code, inclusion: { in: Country.codes, message: "is not a supported country" }, allow_blank: true
   validate :hire_date_not_after_first_salary, if: -> { persisted? && will_save_change_to_hire_date? }
 
+  # The filters shared by the directory and the salary insights.
+  def self.filtered_by(country: nil, department: nil, job_title: nil)
+    scope = all
+    scope = scope.where(country_code: country.to_s.upcase) if country.present?
+    scope = scope.where(department:) if department.present?
+    scope = scope.where(job_title:) if job_title.present?
+    scope
+  end
+
   def country
     Country.find(country_code)
   end

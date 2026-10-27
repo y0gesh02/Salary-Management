@@ -227,3 +227,23 @@ error format.
 - **Root cause of the slow Brakeman runs (open since §8):** the Rails binstub passes
   `--ensure-latest`, which calls rubygems.org, and the local network to it hangs. Added an opt-in
   `BRAKEMAN_OFFLINE=1` for local runs. CI still runs the version check.
+
+## 15. Salary insights API (TDD)
+**Prompt (summary):** Statistics that answer "how does the org pay people?".
+
+**What happened:**
+- `SalaryStatistics` makes one aggregate query over the current-salary set and returns headcount,
+  min, max, average, median (`percentile_cont`) and total annual payroll per **(group, currency)**.
+  An Indian employee paid in USD is a separate row, so currencies are never combined.
+- The specs use a hand-computed dataset: monthly pay annualized, past and scheduled records ignored,
+  the median of an even group, the average exact to the cent, employees with no salary yet excluded,
+  and the largest groups first.
+- The median is computed in floating point by Postgres and cast back to `numeric` and rounded, so
+  the API only ever sends exact decimals.
+- Refactors to keep one definition of each rule: `Employee.filtered_by` (shared by the directory
+  and insights) and `SalaryRecord.current_with_annual_amount_as_of` (shared by salary sorting and
+  statistics).
+- **Caught in review:** the controller rescued every `ArgumentError`, which would have turned any
+  bug into a 400 that leaks an internal message. It now rescues only `SalaryStatistics::UnknownGrouping`.
+- **A wrong benchmark caught:** the first timing (1.3 ms) was a query-cache hit from the warm-up call.
+  Re-measured as the median of 10 runs: 11–17 ms. Only the real numbers are recorded in design.md.
