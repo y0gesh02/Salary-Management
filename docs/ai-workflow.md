@@ -166,3 +166,21 @@ serve the built app.
   in the config.
 - Review: removed a dead `current_user` override that the AI had added. Mutation-checked the CSRF
   setting and the login guard, and both were caught.
+
+## 12. Seed script (TDD)
+**Prompt (summary):** A seed script for 10,000 realistic employees, deterministic and fast.
+
+**What happened:**
+- Split for testability: `Seeding::EmployeeGenerator` (pure Ruby, no DB; same seed and `today` give
+  the same rows) and `Seeding::Loader` (bulk `insert_all!` in batches of 1,000 inside transactions).
+- Because `insert_all` skips validations and normalization, a spec runs every generated row through
+  the real model validations, so the seed can't produce data the app itself would reject.
+- The data is realistic on purpose: names by country locale (Faker), a weighted country mix,
+  salary bands per country and per job title, yearly April raises, about 20% monthly pay, and about
+  5% scheduled future raises. That gives the current-salary rule and the insights real cases.
+- **Correctness fix in review:** the loader first paired `RETURNING id` values with input rows by
+  position. SQL does not guarantee that order, so ids are now matched by the unique email.
+- `db/seeds.rb` can be re-run (it skips existing data unless `RESET=1`). Production requires the
+  `HR_EMAIL` and `HR_PASSWORD` environment variables, with no fallback.
+- Measured: 10,000 employees and 23,753 records seeded in 2.9 s. The current salary for all
+  employees resolves in 7.4 ms (EXPLAIN ANALYZE). Recorded in design.md §9.

@@ -225,6 +225,10 @@ scope for v1. A single smoke test may be added if time allows.
   milliseconds. A `pg_trgm` index is the upgrade path.
 - **Current salary:** `DISTINCT ON` with the composite index (see §3). The directory joins it
   as a subquery for the page being shown.
+- **Measured (10,000 employees, 23,753 salary records, local Postgres 17):** seeding takes 2.9 s.
+  Resolving the current salary for *every* employee takes 7.4 ms. For that whole-table query the
+  planner picks a sequential scan plus an in-memory sort over the composite index, which is the
+  right plan when reading all rows. The index serves per-employee and per-page lookups.
 - **Insights:** a single aggregate query per request. Response time and query plans are
   checked against the 10,000-employee seed and recorded here.
 - **N+1 queries:** avoided through explicit joins and preloading, and checked in request specs.
