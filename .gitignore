@@ -1,0 +1,32 @@
+# Secrets
+/config/master.key
+/config/credentials/*.key
+/.env*
+!/.env.example
+
+# Bundler / Rails runtime
+/.bundle
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/tmp/pids/*
+!/tmp/pids/.keep
+/storage/*
+!/storage/.keep
+/public/assets
+
+# Frontend build output (generated into public/ by Vite)
+/public/index.html
+/node_modules
+/frontend/node_modules
+/frontend/dist
+
+# Test / coverage
+/coverage
+/spec/examples.txt
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/

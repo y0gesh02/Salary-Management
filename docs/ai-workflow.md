@@ -65,3 +65,17 @@ without any write, so it would need a scheduled job. **Decision:** compute at re
 `DISTINCT ON` and a composite index, and pass `as_of` explicitly so tests are deterministic.
 
 **My review:** _(to fill in)_
+
+## 6. Project setup: Rails skeleton
+**Prompt (summary):** Set up a Rails 8 app with PostgreSQL and RSpec, in small chunks, with no
+commits by the AI.
+
+**What happened:**
+- Installing Rails 8.1.4 into the global gem environment failed: an old RubyGems hit `rackup` and
+  `prism` dependency conflicts. The AI stopped instead of forcing the install, and switched to an
+  isolated RVM gemset (`.ruby-gemset` → `salary-management`) so other projects stay untouched.
+- `rails new` was run with Hotwire, the asset pipeline, mailers, Action Cable, Active Storage,
+  Kamal and Solid* all skipped. The UI is a separate React build, and only Postgres is used.
+- Production reads `DATABASE_URL` (Neon). The `.gitignore` was written by hand (because
+  `--skip-git` was used) and excludes `config/master.key`.
+- RSpec runs in random order with a reproducible seed. FactoryBot syntax is included.
