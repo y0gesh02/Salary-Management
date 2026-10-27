@@ -38,5 +38,8 @@ module SalaryManagement
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # The React app is built by Vite into public/ (see frontend/vite.config.ts).
+    config.x.spa_index_path = Rails.public_path.join("index.html")
   end
 end

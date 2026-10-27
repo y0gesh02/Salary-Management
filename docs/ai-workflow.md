@@ -79,3 +79,23 @@ commits by the AI.
 - Production reads `DATABASE_URL` (Neon). The `.gitignore` was written by hand (because
   `--skip-git` was used) and excludes `config/master.key`.
 - RSpec runs in random order with a reproducible seed. FactoryBot syntax is included.
+
+## 7. Project setup: React frontend and single-deploy serving
+**Prompt (summary):** Scaffold React (Vite + TypeScript) with Tailwind and shadcn/ui; make Rails
+serve the built app.
+
+**What happened:**
+- Vite 8 / React 19 / TypeScript 7 / oxlint scaffold, plus Tailwind v4, shadcn/ui (Radix, Nova
+  preset), TanStack Query/Table, React Router and Vitest + Testing Library. Demo files removed.
+- TypeScript 7 removed `baseUrl`, so the `@/` alias uses `paths` only.
+- `vite build` outputs into Rails' `public/` without wiping Rails' own files there. A `prebuild`
+  script removes only the previous build. The build output is gitignored.
+- In development, Vite proxies `/api` to Rails. The browser sees a single origin, the same as in
+  production, so session cookies behave identically in both.
+- The SPA fallback was written test-first: deep links serve `index.html`, while `/api/*` and
+  non-HTML requests get a real 404. A clear 503 is returned if the frontend has not been built.
+- **AI mistake caught:** the first spec for `/` passed or failed depending on whether
+  `public/index.html` had been built, because the static file server answers before routing.
+  It was replaced with a routing spec so the suite stays deterministic.
+- The shadcn-generated `components/ui/**` is exempted from one fast-refresh lint rule, so
+  generated code is not hand-edited.
