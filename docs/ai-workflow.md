@@ -184,3 +184,23 @@ serve the built app.
   `HR_EMAIL` and `HR_PASSWORD` environment variables, with no fallback.
 - Measured: 10,000 employees and 23,753 records seeded in 2.9 s. The current salary for all
   employees resolves in 7.4 ms (EXPLAIN ANALYZE). Recorded in design.md §9.
+
+## 13. Employee API, read side (TDD)
+**Prompt (summary):** Directory (search, filters, sort, pagination), the employee detail with its
+salary history, and filter options.
+
+**What happened:**
+- `EmployeeSearch` query object: SQL filtering, `ILIKE` search with wildcards escaped, whitelisted
+  sort keys (an unknown key, including an injection attempt, falls back to name), page bounds
+  clamped, `NULLS LAST` plus `id` for a stable total order, so pages never overlap.
+- Sorting by salary uses the *annual* amount. `SalaryRecord::ANNUAL_AMOUNT_SQL` sits next to the
+  Ruby `#annual_amount`, and a spec checks that the two agree.
+- A fixed three queries per page (count, rows, the page's current salaries), and a spec counts
+  them to guard against N+1 regressions. The salary join is added only when sorting by salary.
+- Serializers keep JSON out of controllers. Money is sent as decimal strings (no float rounding).
+  The history is labelled past / current / scheduled using the same `current_as_of` rule.
+- **AI mistake caught:** a spec fixture ("Priya Sharma" vs "Priyanka Rao") depended on Postgres
+  collation, which ignores spaces under `en_US`, so the expected order was locale-dependent.
+  It was replaced with unambiguous names to keep the suite deterministic across machines.
+- Also caught in review before running: a leftover, unused block in the query-count spec.
+- Measured on the 10k seed: 2–22 ms per directory request (recorded in design.md §9).

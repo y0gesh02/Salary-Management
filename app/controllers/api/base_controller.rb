@@ -7,6 +7,10 @@ module Api
 
     before_action :require_login
 
+    rescue_from ActiveRecord::RecordNotFound do
+      render json: { error: "Not found" }, status: :not_found
+    end
+
     rescue_from ActionController::InvalidAuthenticityToken do
       render json: { error: "Invalid or missing CSRF token" }, status: :forbidden
     end

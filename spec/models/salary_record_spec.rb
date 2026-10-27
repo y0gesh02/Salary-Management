@@ -72,6 +72,17 @@ RSpec.describe SalaryRecord do
     end
   end
 
+  describe "ANNUAL_AMOUNT_SQL" do
+    it "computes the same annual amount in the database as #annual_amount does in Ruby" do
+      records = [ create(:salary_record, employee:, amount: 100_000, period: "monthly"),
+                  create(:salary_record, employee:, amount: 1_300_000, period: "annual") ]
+
+      in_database = described_class.where(id: records).order(:id).pluck(Arel.sql(described_class::ANNUAL_AMOUNT_SQL))
+
+      expect(in_database).to eq(records.map(&:annual_amount))
+    end
+  end
+
   describe "append-only history" do
     it "cannot be changed once saved; a correction is a new record" do
       record = create(:salary_record, employee:)

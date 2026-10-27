@@ -7,6 +7,8 @@ Rails.application.routes.draw do
 
   namespace :api do
     resource :session, only: %i[show create destroy]
+    resources :employees, only: %i[index show]
+    resource :filters, only: :show
   end
 
   # Everything else that is an HTML page request belongs to the React app,

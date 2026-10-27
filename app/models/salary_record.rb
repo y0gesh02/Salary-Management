@@ -4,6 +4,10 @@
 class SalaryRecord < ApplicationRecord
   PERIODS = %w[annual monthly].freeze
   MONTHS_PER_YEAR = 12
+  # SQL twin of #annual_amount, for sorting and aggregating in the database.
+  # Keep the two in step; a spec checks they agree.
+  ANNUAL_AMOUNT_SQL = "CASE salary_records.period WHEN 'monthly' " \
+                      "THEN salary_records.amount * #{MONTHS_PER_YEAR} ELSE salary_records.amount END".freeze
 
   belongs_to :employee
 

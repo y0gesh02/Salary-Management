@@ -229,6 +229,9 @@ scope for v1. A single smoke test may be added if time allows.
   Resolving the current salary for *every* employee takes 7.4 ms. For that whole-table query the
   planner picks a sequential scan plus an in-memory sort over the composite index, which is the
   right plan when reading all rows. The index serves per-employee and per-page lookups.
+- **Directory, measured on the 10k seed** (fixed three queries per page): default page 2 ms,
+  text search 22 ms, country + department filter sorted by annual salary 12 ms, last page of
+  100 rows 20 ms, employee detail with history 5 ms.
 - **Insights:** a single aggregate query per request. Response time and query plans are
   checked against the 10,000-employee seed and recorded here.
 - **N+1 queries:** avoided through explicit joins and preloading, and checked in request specs.
