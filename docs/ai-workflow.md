@@ -113,3 +113,17 @@ serve the built app.
 - Fixed a Vite deprecation warning (`__dirname` → `import.meta.dirname`).
 - Open observation: Brakeman once took over 2 minutes inside `bin/ci`, but about 4 s on its own.
   I couldn't reproduce it, so I'm watching it.
+
+## 9. Domain core: Employee (TDD)
+**Prompt (summary):** Build the `Employee` model test-first, with country reference data.
+
+**What happened:**
+- Specs first (red): required fields, email normalized and unique (in the model and in a DB
+  unique index), format, country restricted to the supported list, whitespace trimming.
+- `Country` is a `Data` value object list (code, name, default currency) rather than a table.
+  It is reference data that changes only with a deploy.
+- Integrity is also enforced in the database (NOT NULL, unique email, check constraints for
+  lower-case email and the country-code format), so bad data can't bypass the model.
+- **AI mistake caught in review:** the first draft defined `ALL` inside a `Data.define` block,
+  which would have created a top-level `::ALL` constant. Rewritten as
+  `class Country < Data.define(...)`, and verified that `::ALL` is not defined.
