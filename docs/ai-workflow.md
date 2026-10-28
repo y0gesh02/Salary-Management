@@ -330,3 +330,30 @@ profile, both showing the API's errors on their fields.
   `useApplyChange` for all employee mutations (cache write plus invalidating lists, filters and insights),
   and a shared `EmployeeLoadError`.
 
+## 20. Frontend: salary insights page, and a real login bug found by looking at it
+**Prompt (summary):** Insights page: grouping, filters, statistics table and a chart. Load the
+dataviz skill before charting.
+
+**What happened:**
+- **Chart design from the data, not from a template:** rows are per (group, currency), and
+  currencies can't share an axis, so the chart shows one currency at a time and refuses to draw a
+  one-bar chart. The dataviz skill's checks shaped the rest: one series → one validated hue, a
+  table twin, tooltips on hover *and* focus, no dual axis. Recharts (in the original plan) was
+  not needed.
+- Tests first (7 + 1 money test). **My own fixture was wrong once:** USD had a single group, so
+  the app correctly showed the "nothing to compare" hint and my chart assertion failed. Fixed the fixture.
+- **Mutation checks:** 7 breaks. Two survived at first: a stale chosen currency after a filter
+  change (new test added) and empty params left in the URL (test extended). One "caught" result was
+  a false positive: my mutation broke the syntax, so the file didn't run; I redid it as valid code.
+- **Rendered it and looked (headless Chromium via Playwright, real 10k seed):**
+  - **Real bug, not visible to any unit test: login failed in a browser in development** with
+    "Invalid or missing CSRF token". Diagnosis: traced the requests, then reproduced with curl.
+    It worked without an `Origin` header and failed with one. The Rails log confirmed it:
+    `HTTP Origin header (http://localhost:5173) didn't match request.base_url (http://localhost:3000)`.
+    Vite's shorthand proxy rewrites `Host`, so Rails' origin check failed. Fix: `changeOrigin: false`.
+    Verified that login now works and that a foreign-origin POST is still rejected with 403. Production was never
+    affected (one origin). **My earlier smoke test missed this because curl sends no Origin header.**
+  - Layout issues fixed: tooltip clipped below the last row (now opens above and stays inside
+    the plot), axis running to 8M for a 5M maximum (finer "nice" steps), squeezed plot and
+    overlapping axis labels on a phone (stacked layout), and the header overflowing on a phone.
+

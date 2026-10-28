@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/AppLayout'
 import { EditEmployeePage, NewEmployeePage } from '@/employees/EmployeeFormPages'
 import { EmployeePage } from '@/employees/EmployeePage'
 import { EmployeesPage } from '@/employees/EmployeesPage'
-import { InsightsPage } from '@/pages/InsightsPage'
+import { InsightsPage } from '@/insights/InsightsPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 

@@ -31,7 +31,7 @@ describe('authentication flow', () => {
     await userEvent.type(screen.getByLabelText('Password'), 'correct-horse-battery')
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
-    expect(await screen.findByRole('heading', { name: 'Insights' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Salary insights' })).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/insights')
     const loginCall = calls.find((call) => call.method === 'POST')
     expect(loginCall?.headers['X-CSRF-Token']).toBe('logged-out-token')

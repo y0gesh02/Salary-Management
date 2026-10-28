@@ -37,3 +37,20 @@ export type FilterOptions = {
   currencies: string[]
   periods: Period[]
 }
+
+export type GroupBy = 'country' | 'department' | 'job_title'
+
+// One row per (group, currency): amounts in different currencies are never combined.
+export type InsightRow = {
+  group: { key: string; label: string }
+  currency: string
+  headcount: number
+  min: string
+  max: string
+  average: string
+  median: string
+  total: string
+}
+
+export type SalaryInsights = { group_by: GroupBy; as_of: string; data: InsightRow[] }
+

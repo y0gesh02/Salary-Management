@@ -39,7 +39,7 @@ flowchart LR
 |-------|--------|
 | Backend | Ruby 3.2, Rails 8, PostgreSQL 17 |
 | Frontend | React + TypeScript (Vite), React Router, TanStack Query |
-| UI | shadcn/ui + Tailwind, shadcn charts (Recharts) |
+| UI | shadcn/ui + Tailwind; the one chart is plain HTML/CSS (no chart library) |
 | Tests | RSpec + FactoryBot (backend), Vitest + Testing Library (frontend) |
 | Hosting | Render (Docker web service) + Neon (Postgres) |
 
@@ -182,7 +182,7 @@ sent in the `X-CSRF-Token` header. The single HR user is created from the `HR_EM
 | `/employees` | Directory: search, filters, sortable paginated table (server-side), with URL query params for sharable state |
 | `/employees/new`, `/employees/:id/edit` | Employee form (the new-employee form includes the initial salary) |
 | `/employees/:id` | Profile, current salary, salary history timeline, "Record salary change" dialog |
-| `/insights` | Group-by selector, country filter, statistics table and bar chart |
+| `/insights` | Group-by selector, country and department filters, salary-spread chart and statistics table |
 
 - All money is shown with `Intl.NumberFormat` and an explicit currency code, for example
   `INR 12,00,000 / yr`.
@@ -208,6 +208,17 @@ sent in the `X-CSRF-Token` header. The single HR user is created from the `HR_EM
   The currency is pre-selected from the country but never forced, since someone working in
   Germany may be paid in USD. Department and job title are free text with suggestions
   (`<datalist>`), so HR can add a new department without a code change.
+- **Insights chart: one currency at a time.** A chart axis can't hold INR and USD without an
+  exchange rate, which is out of scope, so the chart plots the rows of a single currency
+  (default: the one most employees in view are paid in; a "Chart currency" picker switches). Form:
+  per group, a thin min→max line with a dot at the median, sorted by median: it shows the spread,
+  which an average-only bar chart hides. One series, so one hue (validated with the dataviz
+  palette checker in light and dark). With fewer than two groups in a currency there is nothing to
+  compare, so the page says how to get a comparison (filter by country, group by department)
+  instead of drawing a one-bar chart. The table below lists every row and figure, so the chart is
+  never the only way to read a value; tooltips work on hover and keyboard focus.
+- The chart is ~100 lines of positioned HTML rather than Recharts: one series of simple marks
+  doesn't need a library, and the markup stays testable (roles, labels) in jsdom.
 
 ## 7. Seeding
 

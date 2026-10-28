@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatMoney } from './money'
+import { formatMoney, formatMoneyCompact } from './money'
 
 describe('formatMoney', () => {
   it('always shows the currency code, so amounts in different currencies are never confused', () => {
@@ -16,3 +16,12 @@ describe('formatMoney', () => {
     expect(formatMoney('1320000.0', 'INR', 'annual')).toBe('INR 1,320,000 / year')
   })
 })
+
+describe('formatMoneyCompact', () => {
+  it('shortens large amounts for chart labels, still naming the currency', () => {
+    expect(formatMoneyCompact('2400000.0', 'INR')).toBe('INR 2.4M')
+    expect(formatMoneyCompact('145000.0', 'USD')).toBe('USD 145K')
+    expect(formatMoneyCompact('950.0', 'EUR')).toBe('EUR 950')
+  })
+})
+

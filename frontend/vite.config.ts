@@ -15,9 +15,11 @@ export default defineConfig({
   server: {
     // Same-origin in development too: the browser talks only to Vite,
     // which forwards API calls to Rails, so session cookies just work.
+    // changeOrigin stays false: Rails must see the browser's Host (localhost:5173),
+    // or its CSRF origin check rejects every POST, since the Origin header won't match.
     proxy: {
-      '/api': railsUrl,
-      '/up': railsUrl,
+      '/api': { target: railsUrl, changeOrigin: false },
+      '/up': { target: railsUrl, changeOrigin: false },
     },
   },
   build: {
