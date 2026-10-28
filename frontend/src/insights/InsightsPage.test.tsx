@@ -23,7 +23,7 @@ const byDepartment = [
 
 function setup(rows: InsightRow[] = byDepartment) {
   const calls = fakeApi({
-    'GET /api/session': { body: { user: { email: 'hr@acme.test' }, csrf_token: 't' } },
+    'GET /api/session': { body: { user: { email: 'hr@incubyte.test' }, csrf_token: 't' } },
     'GET /api/filters': { body: filterOptions },
     'GET /api/insights/salaries': ({ url }) => ({
       body: { group_by: url.searchParams.get('group_by'), as_of: '2026-10-28', data: rows },
@@ -79,7 +79,7 @@ describe('Salary insights', () => {
   it('falls back to the main currency when a filter removes the one being charted', async () => {
     const fakeRows = { IN: byDepartment.filter((row) => row.currency === 'INR') }
     fakeApi({
-      'GET /api/session': { body: { user: { email: 'hr@acme.test' }, csrf_token: 't' } },
+      'GET /api/session': { body: { user: { email: 'hr@incubyte.test' }, csrf_token: 't' } },
       'GET /api/filters': { body: filterOptions },
       'GET /api/insights/salaries': ({ url }) => ({
         body: { group_by: 'department', as_of: '2026-10-28', data: url.searchParams.get('country') === 'IN' ? fakeRows.IN : byDepartment },

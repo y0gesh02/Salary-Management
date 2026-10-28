@@ -4,7 +4,7 @@ RSpec.describe "Employee changes API" do
   before { sign_in(create(:user)) }
 
   let(:profile) do
-    { full_name: "Priya Sharma", email: "priya@acme.test", job_title: "Software Engineer",
+    { full_name: "Priya Sharma", email: "priya@incubyte.test", job_title: "Software Engineer",
       department: "Engineering", country_code: "IN", hire_date: "2024-03-01" }
   end
 

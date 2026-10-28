@@ -16,14 +16,14 @@ RSpec.describe Employee do
 
   describe "email" do
     it "is normalized so the same address can't be entered twice in different cases" do
-      employee = create(:employee, email: "  Priya.Sharma@ACME.test ")
+      employee = create(:employee, email: "  Priya.Sharma@Incubyte.test ")
 
-      expect(employee.email).to eq("priya.sharma@acme.test")
+      expect(employee.email).to eq("priya.sharma@incubyte.test")
     end
 
     it "must be unique, ignoring case" do
-      create(:employee, email: "priya@acme.test")
-      duplicate = build(:employee, email: "PRIYA@acme.test")
+      create(:employee, email: "priya@incubyte.test")
+      duplicate = build(:employee, email: "PRIYA@incubyte.test")
 
       expect(duplicate).not_to be_valid
       expect(duplicate.errors[:email]).to include("has already been taken")
@@ -37,8 +37,8 @@ RSpec.describe Employee do
     end
 
     it "is also unique at the database level, so concurrent requests can't create duplicates" do
-      create(:employee, email: "priya@acme.test")
-      duplicate = build(:employee, email: "priya@acme.test")
+      create(:employee, email: "priya@incubyte.test")
+      duplicate = build(:employee, email: "priya@incubyte.test")
 
       expect { duplicate.save(validate: false) }.to raise_error(ActiveRecord::RecordNotUnique)
     end

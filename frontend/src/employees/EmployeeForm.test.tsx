@@ -20,7 +20,7 @@ const salary = {
 const priya: EmployeeDetail = {
   id: 1,
   full_name: 'Priya Sharma',
-  email: 'priya@acme.example',
+  email: 'priya@incubyte.example',
   job_title: 'Software Engineer',
   department: 'Engineering',
   country: { code: 'IN', name: 'India' },
@@ -31,7 +31,7 @@ const priya: EmployeeDetail = {
 
 function setup(routes: Routes = {}) {
   return fakeApi({
-    'GET /api/session': { body: { user: { email: 'hr@acme.test' }, csrf_token: 'token-1' } },
+    'GET /api/session': { body: { user: { email: 'hr@incubyte.test' }, csrf_token: 'token-1' } },
     'GET /api/filters': { body: filterOptions },
     'GET /api/employees': { body: { data: [], meta: { page: 1, per_page: 25, total: 0 } } },
     'GET /api/employees/1': { body: priya },
@@ -41,7 +41,7 @@ function setup(routes: Routes = {}) {
 
 async function fillProfile() {
   await userEvent.type(await screen.findByLabelText('Full name'), 'Priya Sharma')
-  await userEvent.type(screen.getByLabelText('Email'), 'priya@acme.example')
+  await userEvent.type(screen.getByLabelText('Email'), 'priya@incubyte.example')
   await userEvent.type(screen.getByLabelText('Job title'), 'Software Engineer')
   await userEvent.type(screen.getByLabelText('Department'), 'Engineering')
   await userEvent.type(screen.getByLabelText('Hire date'), '2024-03-01')
@@ -68,7 +68,7 @@ describe('Adding an employee', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/employees/1'))
     expect(calls.find((call) => call.method === 'POST')?.body).toEqual({
       employee: {
-        full_name: 'Priya Sharma', email: 'priya@acme.example', job_title: 'Software Engineer',
+        full_name: 'Priya Sharma', email: 'priya@incubyte.example', job_title: 'Software Engineer',
         department: 'Engineering', country_code: 'IN', hire_date: '2024-03-01',
         initial_salary: { amount: '1800000', currency: 'INR', period: 'annual' },
       },
@@ -140,7 +140,7 @@ describe('Editing an employee', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/employees/1'))
     expect(calls.find((call) => call.method === 'PATCH')?.body).toEqual({
       employee: {
-        full_name: 'Priya Sharma', email: 'priya@acme.example', job_title: 'Senior Software Engineer',
+        full_name: 'Priya Sharma', email: 'priya@incubyte.example', job_title: 'Senior Software Engineer',
         department: 'Engineering', country_code: 'IN', hire_date: '2024-03-01',
       },
     })

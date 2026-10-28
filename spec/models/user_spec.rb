@@ -6,13 +6,13 @@ RSpec.describe User do
   end
 
   it "normalizes the email so login is case-insensitive" do
-    expect(create(:user, email: " HR@ACME.test ").email).to eq("hr@acme.test")
+    expect(create(:user, email: " HR@Incubyte.test ").email).to eq("hr@incubyte.test")
   end
 
   it "requires a unique email" do
-    create(:user, email: "hr@acme.test")
+    create(:user, email: "hr@incubyte.test")
 
-    expect(build(:user, email: "hr@acme.test")).not_to be_valid
+    expect(build(:user, email: "hr@incubyte.test")).not_to be_valid
   end
 
   it "requires a password of at least 12 characters" do

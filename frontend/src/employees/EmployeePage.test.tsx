@@ -27,7 +27,7 @@ const scheduled = record({
 const priya: EmployeeDetail = {
   id: 1,
   full_name: 'Priya Sharma',
-  email: 'priya@acme.example',
+  email: 'priya@incubyte.example',
   job_title: 'Software Engineer',
   department: 'Engineering',
   country: { code: 'IN', name: 'India' },
@@ -39,7 +39,7 @@ const priya: EmployeeDetail = {
 
 function setup(routes: Routes = {}, employee: EmployeeDetail = priya) {
   return fakeApi({
-    'GET /api/session': { body: { user: { email: 'hr@acme.test' }, csrf_token: 'token-1' } },
+    'GET /api/session': { body: { user: { email: 'hr@incubyte.test' }, csrf_token: 'token-1' } },
     'GET /api/filters': { body: filterOptions },
     'GET /api/employees': { body: { data: [], meta: { page: 1, per_page: 25, total: 0 } } },
     [`GET /api/employees/${employee.id}`]: { body: employee },
@@ -54,7 +54,7 @@ describe('Employee page', () => {
 
     expect(await screen.findByRole('heading', { name: 'Priya Sharma' })).toBeInTheDocument()
     expect(screen.getByText('Software Engineer · Engineering · India')).toBeInTheDocument()
-    expect(screen.getByText('priya@acme.example')).toBeInTheDocument()
+    expect(screen.getByText('priya@incubyte.example')).toBeInTheDocument()
 
     const current = screen.getByRole('region', { name: 'Current salary' })
     expect(within(current).getByText('INR 1,800,000 / year')).toBeInTheDocument()

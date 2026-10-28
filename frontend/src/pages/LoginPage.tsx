@@ -33,7 +33,7 @@ export function LoginPage() {
     <main className="flex min-h-svh items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl">ACME Salary Management</CardTitle>
+          <CardTitle className="text-xl">Incubyte Salary Management</CardTitle>
           <CardDescription>Log in with your HR Manager account.</CardDescription>
         </CardHeader>
         <CardContent>

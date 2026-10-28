@@ -10,9 +10,9 @@ def setting(name, development_default)
   Rails.env.production? ? ENV.fetch(name) : ENV.fetch(name, development_default)
 end
 
-hr_email = setting("HR_EMAIL", "hr@acme.test")
+hr_email = setting("HR_EMAIL", "hr@incubyte.test")
 hr_user = User.find_or_initialize_by(email: hr_email.strip.downcase)
-hr_user.update!(password: setting("HR_PASSWORD", "acme-hr-password"))
+hr_user.update!(password: setting("HR_PASSWORD", "incubyte-hr-password"))
 puts "HR Manager account ready: #{hr_user.email}"
 
 if Employee.exists? && ENV["RESET"].blank?

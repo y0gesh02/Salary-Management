@@ -6,7 +6,7 @@ import { fakeApi } from '@/test/fake-api'
 import { renderApp } from '@/test/render-app'
 
 const loggedOut = { body: { user: null, csrf_token: 'logged-out-token' } }
-const loggedIn = { body: { user: { email: 'hr@acme.test' }, csrf_token: 'logged-in-token' } }
+const loggedIn = { body: { user: { email: 'hr@incubyte.test' }, csrf_token: 'logged-in-token' } }
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -27,7 +27,7 @@ describe('authentication flow', () => {
     const calls = fakeApi({ 'GET /api/session': loggedOut, 'POST /api/session': loggedIn })
     const router = renderApp('/insights')
 
-    await userEvent.type(await screen.findByLabelText('Email'), 'hr@acme.test')
+    await userEvent.type(await screen.findByLabelText('Email'), 'hr@incubyte.test')
     await userEvent.type(screen.getByLabelText('Password'), 'correct-horse-battery')
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
@@ -35,7 +35,7 @@ describe('authentication flow', () => {
     expect(router.state.location.pathname).toBe('/insights')
     const loginCall = calls.find((call) => call.method === 'POST')
     expect(loginCall?.headers['X-CSRF-Token']).toBe('logged-out-token')
-    expect(loginCall?.body).toEqual({ email: 'hr@acme.test', password: 'correct-horse-battery' })
+    expect(loginCall?.body).toEqual({ email: 'hr@incubyte.test', password: 'correct-horse-battery' })
   })
 
   it("shows the server's message when login fails", async () => {
@@ -45,7 +45,7 @@ describe('authentication flow', () => {
     })
     renderApp('/login')
 
-    await userEvent.type(await screen.findByLabelText('Email'), 'hr@acme.test')
+    await userEvent.type(await screen.findByLabelText('Email'), 'hr@incubyte.test')
     await userEvent.type(screen.getByLabelText('Password'), 'wrong-password')
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
@@ -58,7 +58,7 @@ describe('authentication flow', () => {
     renderApp('/')
 
     expect(await screen.findByRole('heading', { name: 'Employees' })).toBeInTheDocument()
-    expect(screen.getByText('hr@acme.test')).toBeInTheDocument()
+    expect(screen.getByText('hr@incubyte.test')).toBeInTheDocument()
   })
 
   it('logs out and returns to the login page', async () => {

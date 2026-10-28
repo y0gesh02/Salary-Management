@@ -1,7 +1,7 @@
 # Salary Management — Requirements (v1)
 
 ## Goal
-Replace ACME's spreadsheet-based salary tracking with a web application that lets the HR Manager
+Replace Incubyte's spreadsheet-based salary tracking with a web application that lets the HR Manager
 maintain salary data for ~10,000 employees across multiple countries, and answer questions about
 how the organization pays people.
 

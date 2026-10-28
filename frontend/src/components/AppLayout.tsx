@@ -16,7 +16,7 @@ export function AppLayout() {
     <div className="min-h-svh bg-muted/40">
       <header className="border-b bg-background">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:gap-6">
-          <span className="font-semibold whitespace-nowrap"><span className="hidden sm:inline">ACME </span>Salary</span>
+          <span className="font-semibold whitespace-nowrap"><span className="hidden sm:inline">Incubyte </span>Salary</span>
           <nav className="flex gap-1">
             {NAV_ITEMS.map((item) => (
               <NavLink key={item.to} to={item.to}

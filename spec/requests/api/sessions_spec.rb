@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Session API" do
-  let!(:hr_manager) { create(:user, email: "hr@acme.test") }
+  let!(:hr_manager) { create(:user, email: "hr@incubyte.test") }
 
   describe "GET /api/session" do
     it "reports no user before login, and hands out a CSRF token for the login form" do
@@ -17,14 +17,14 @@ RSpec.describe "Session API" do
       sign_in(hr_manager)
 
       expect(response).to have_http_status(:ok)
-      expect(response.parsed_body["user"]).to eq("email" => "hr@acme.test")
+      expect(response.parsed_body["user"]).to eq("email" => "hr@incubyte.test")
 
       get "/api/session"
-      expect(response.parsed_body["user"]).to eq("email" => "hr@acme.test")
+      expect(response.parsed_body["user"]).to eq("email" => "hr@incubyte.test")
     end
 
     it "accepts the email in any case" do
-      post "/api/session", params: { email: "HR@Acme.Test", password: "correct-horse-battery" }, as: :json
+      post "/api/session", params: { email: "HR@Incubyte.Test", password: "correct-horse-battery" }, as: :json
 
       expect(response).to have_http_status(:ok)
     end
@@ -37,7 +37,7 @@ RSpec.describe "Session API" do
     end
 
     it "gives the same answer for an unknown email, so it doesn't reveal which accounts exist" do
-      post "/api/session", params: { email: "nobody@acme.test", password: "whatever-password" }, as: :json
+      post "/api/session", params: { email: "nobody@incubyte.test", password: "whatever-password" }, as: :json
 
       expect(response).to have_http_status(:unauthorized)
       expect(response.parsed_body).to eq("error" => "Invalid email or password")
@@ -74,7 +74,7 @@ RSpec.describe "Session API" do
     end
 
     it "rejects a state-changing request without the CSRF token" do
-      post "/api/session", params: { email: "hr@acme.test", password: "correct-horse-battery" }, as: :json
+      post "/api/session", params: { email: "hr@incubyte.test", password: "correct-horse-battery" }, as: :json
 
       expect(response).to have_http_status(:forbidden)
       expect(response.parsed_body).to eq("error" => "Invalid or missing CSRF token")
@@ -84,7 +84,7 @@ RSpec.describe "Session API" do
       get "/api/session"
       token = response.parsed_body["csrf_token"]
 
-      post "/api/session", params: { email: "hr@acme.test", password: "correct-horse-battery" },
+      post "/api/session", params: { email: "hr@incubyte.test", password: "correct-horse-battery" },
                            headers: { "X-CSRF-Token" => token }, as: :json
 
       expect(response).to have_http_status(:ok)

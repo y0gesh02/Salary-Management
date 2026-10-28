@@ -36,7 +36,7 @@ module Seeding
     EARLIEST_HIRE_DATE = Date.new(2015, 1, 1)
     MONTHLY_PAY_SHARE = 0.2      # share of employees whose salary is agreed per month
     SCHEDULED_RAISE_SHARE = 0.05 # share with a raise already agreed for the coming months
-    EMAIL_DOMAIN = "acme.example"
+    EMAIL_DOMAIN = "incubyte.example"
 
     def initialize(seed:, today: Date.current)
       @seed = seed

@@ -33,9 +33,9 @@ RSpec.describe EmployeeSearch do
 
   describe "text search" do
     it "matches part of the name or email, ignoring case" do
-      priya = employee("Priya Sharma", email: "priya@acme.test")
-      john = employee("John Smith", email: "jsmith@acme.test")
-      employee("Anna Berg", email: "anna@acme.test")
+      priya = employee("Priya Sharma", email: "priya@incubyte.test")
+      john = employee("John Smith", email: "jsmith@incubyte.test")
+      employee("Anna Berg", email: "anna@incubyte.test")
 
       expect(search(q: "SHAR").employees).to contain_exactly(priya)
       expect(search(q: "jsmith@").employees).to contain_exactly(john)

@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Employees::Create do
   let(:profile) do
-    { full_name: "Priya Sharma", email: "priya@acme.test", job_title: "Software Engineer",
+    { full_name: "Priya Sharma", email: "priya@incubyte.test", job_title: "Software Engineer",
       department: "Engineering", country_code: "IN", hire_date: "2024-03-01" }
   end
   let(:initial_salary) { { amount: "1800000", currency: "INR", period: "annual" } }

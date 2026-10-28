@@ -1,6 +1,6 @@
-# ACME Salary Management
+# Incubyte Salary Management
 
-I built this for the HR Manager of ACME, a company with 10,000 employees in eight countries.
+I built this for the HR Manager of Incubyte, a company with 10,000 employees in eight countries.
 It lets HR keep employee records, track salary changes over time, and see how people are paid
 by country, department and job title.
 
@@ -51,7 +51,7 @@ bin/rails db:prepare          # creates the database and adds 10,000 sample empl
 bin/dev                       # starts Rails (port 3000) and the frontend (port 5173)
 ```
 
-Then open http://localhost:5173 and log in with `hr@acme.test` / `acme-hr-password`.
+Then open http://localhost:5173 and log in with `hr@incubyte.test` / `incubyte-hr-password`.
 This login only works locally; the live site uses its own.
 
 To reload the sample data, run `RESET=1 bin/rails db:seed`. For a smaller set, add `SEED_EMPLOYEES=500`.

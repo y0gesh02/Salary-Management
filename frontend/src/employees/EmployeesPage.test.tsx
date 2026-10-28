@@ -15,7 +15,7 @@ afterEach(() => {
 const priya: EmployeeSummary = {
   id: 1,
   full_name: 'Priya Sharma',
-  email: 'priya@acme.example',
+  email: 'priya@incubyte.example',
   job_title: 'Software Engineer',
   department: 'Engineering',
   country: { code: 'IN', name: 'India' },
@@ -26,14 +26,14 @@ const priya: EmployeeSummary = {
   },
 }
 const newcomer: EmployeeSummary = {
-  ...priya, id: 2, full_name: 'New Joiner', email: 'new@acme.example', current_salary: null,
+  ...priya, id: 2, full_name: 'New Joiner', email: 'new@incubyte.example', current_salary: null,
 }
 
 
 function setup({ employees = [priya, newcomer], total }: { employees?: EmployeeSummary[]; total?: number } = {}) {
   total ??= employees.length
   const calls = fakeApi({
-    'GET /api/session': { body: { user: { email: 'hr@acme.test' }, csrf_token: 't' } },
+    'GET /api/session': { body: { user: { email: 'hr@incubyte.test' }, csrf_token: 't' } },
     'GET /api/filters': { body: filterOptions },
     'GET /api/employees': ({ url }) => ({
       body: { data: employees, meta: { page: Number(url.searchParams.get('page') ?? 1), per_page: 25, total } },

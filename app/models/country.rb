@@ -1,4 +1,4 @@
-# Countries ACME employs people in, with each country's default salary currency.
+# Countries Incubyte employs people in, with each country's default salary currency.
 # Reference data rather than a table: it changes rarely and only with a deploy.
 # The default currency only pre-fills forms; every salary record stores its own currency.
 class Country < Data.define(:code, :name, :currency)

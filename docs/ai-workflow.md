@@ -391,3 +391,12 @@ dataviz skill before charting.
 - Test first (red), including a country paid in two currencies, which must be summed. Mutation checks:
   ascending order, no summing, and country still getting the salary chart. All were caught. Screenshots
   were checked on desktop and phone.
+
+## 24. Renamed the organisation from ACME to Incubyte
+**Prompt (summary):** "Everywhere you named the project ACME; change it all to Incubyte."
+
+**What happened:** replaced every occurrence (UI title and header, login page, README, requirements,
+seed data, dev login, session cookie name, Render blueprint names, and all test fixtures). Fake email
+addresses use `incubyte.test` / `incubyte.example` rather than a real domain: those endings are
+reserved for examples and tests, so sample data can never reach a real inbox. Local sample data was
+re-seeded so the new dev login works. Full CI is green.
