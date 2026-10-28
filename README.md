@@ -1,103 +1,87 @@
 # ACME Salary Management
 
-Salary management for the HR Manager of ACME, a 10,000-person organisation that pays people in
-eight countries. HR can keep employee records, record pay changes over time, and see how
-the organisation pays people by country, department and job title.
+I built this for the HR Manager of ACME, a company with 10,000 employees in eight countries.
+It lets HR keep employee records, track salary changes over time, and see how people are paid
+by country, department and job title.
 
-**Live demo:** _(URL added after deploy)_. The login is shared with the submission.
-The free hosting sleeps when idle, so the first request can take up to a minute.
+**Live demo:** https://salary-management-w8l4.onrender.com. I've shared the login details with my submission.
+It runs on a free plan that sleeps when nobody uses it, so the first page load can take up to a minute.
 
-## What it does
+## What you can do
 
-- **Employee directory:** search by name or email, filter by country, department and job title,
-  sort any column (including current annual salary), and page through results. The view lives in
-  the URL, so it can be bookmarked and shared.
-- **Employee page:** profile, the salary in effect today, and the full pay history, with each
-  record labelled past, current or scheduled.
-- **Pay changes are appended, never edited:** a raise, a correction or a future-dated change
-  is a new record, so the history stays complete.
-- **Add, edit and delete employees.** A new employee is saved together with their starting salary.
-- **Salary insights:** headcount, min, median, average, max and total payroll per country,
-  department or job title, with filters, plus a chart of the salary spread.
-- **Money is never converted.** Every amount carries its ISO 4217 currency code, and statistics
-  are kept per currency. Monthly pay is annualised (×12) for comparisons.
+- **Find employees.** Search by name or email, filter by country, department or job title, sort
+  any column (including salary), and page through the list. The search and filters stay in the
+  URL, so you can bookmark or share a view.
+- **See an employee's pay.** Each employee has a page with their details, the salary they're paid
+  today, and their full salary history. Each entry is marked as past, current or scheduled.
+- **Record a salary change.** A raise or a correction is saved as a new entry. Old entries are
+  never changed, so the history is always complete. You can also add a change that starts on a
+  future date.
+- **Add, edit and delete employees.** When you add someone, you enter their starting salary too.
+- **See salary insights.** Headcount, lowest, median, average, highest and total pay, grouped by
+  country, department or job title, with filters and a chart.
+- **Different currencies are never mixed.** Every salary keeps its own currency (INR, USD,
+  EUR…), and I never convert between them. Insights are shown per currency. Monthly salaries are
+  multiplied by 12 so they can be compared with yearly ones.
 
-## Documentation
+## Documents
 
-| Document | Contents |
+| Document | What's in it |
 |---|---|
-| [docs/requirements.md](docs/requirements.md) | The one-page requirements, written before building: scope, domain rules, out of scope |
-| [docs/design.md](docs/design.md) | Architecture and ER diagrams, the "current salary" decision and its trade-offs, API, frontend, testing strategy, **measured performance** |
-| [docs/ai-workflow.md](docs/ai-workflow.md) | How AI was used, step by step: prompts, what it got wrong, what was changed and why |
+| [docs/requirements.md](docs/requirements.md) | The one-page requirements I wrote before starting: what's in, what's out, and the rules |
+| [docs/design.md](docs/design.md) | Diagrams, the main design decisions and why I made them, the API, how I tested it, and performance numbers I measured |
+| [docs/ai-workflow.md](docs/ai-workflow.md) | How I used AI along the way: what I asked, what went wrong, and what I changed |
 
 ## Tech stack
 
-Ruby 3.4, Rails 8.1 (JSON API), PostgreSQL 17. React 19 with TypeScript (Vite), TanStack Query,
-React Router, shadcn/ui and Tailwind. RSpec and FactoryBot for the backend, Vitest and Testing
-Library for the frontend. Rails serves the built React app, so there is one deploy and one
-origin, and session cookies need no CORS.
+- **Backend:** Ruby 3.4, Rails 8.1 (JSON API), PostgreSQL 17
+- **Frontend:** React 19 + TypeScript (Vite), TanStack Query, React Router, shadcn/ui, Tailwind
+- **Tests:** RSpec + FactoryBot (backend), Vitest + Testing Library (frontend)
 
-## Running it locally
+Rails also serves the built React app, so it's a single app to run and deploy.
 
-Prerequisites: Ruby 3.4.4, Node 22, PostgreSQL 17 running locally.
+## Running it on your machine
+
+You need Ruby 3.4.4, Node 22 and PostgreSQL 17.
 
 ```bash
 bundle install
 npm --prefix frontend ci
-bin/rails db:prepare          # creates the database and seeds 10,000 employees (about 3 s)
-bin/dev                       # Rails on :3000, Vite on :5173
+bin/rails db:prepare          # creates the database and adds 10,000 sample employees (takes a few seconds)
+bin/dev                       # starts Rails (port 3000) and the frontend (port 5173)
 ```
 
-Open http://localhost:5173 and log in as `hr@acme.test` / `acme-hr-password` (development only;
-production takes the login from environment variables).
+Then open http://localhost:5173 and log in with `hr@acme.test` / `acme-hr-password`.
+This login only works locally; the live site uses its own.
 
-Re-seed with `RESET=1 bin/rails db:seed`. For a smaller dataset, use `SEED_EMPLOYEES=500`.
+To reload the sample data, run `RESET=1 bin/rails db:seed`. For a smaller set, add `SEED_EMPLOYEES=500`.
 
-## Tests
+## Running the tests
 
 ```bash
-bin/ci                        # everything CI runs: RuboCop, bundler-audit, Brakeman, RSpec,
-                              # frontend lint, type check, tests and production build
-bundle exec rspec             # backend only
-npm --prefix frontend test    # frontend only
+bin/ci                        # runs everything: code style, security checks, backend and frontend tests, and a production build
+bundle exec rspec             # backend tests only
+npm --prefix frontend test    # frontend tests only
 ```
 
-The tests are fast (about 4 s for the backend, 4 s for the frontend) and deterministic: fixed
-dates instead of the real clock, a seeded generator and no network. GitHub Actions runs `bin/ci` on every push.
+The tests take a few seconds each and give the same result every run. They use fixed dates
+instead of today's date, and fixed sample data. GitHub Actions runs `bin/ci` on every push.
 
-## Deploying (Render, free plan)
-
-`render.yaml` describes a free Postgres 17 database and a free Docker web service.
-
-1. In Render: **New → Blueprint**, then pick this repository.
-2. Fill in the values it asks for:
-   - `RAILS_MASTER_KEY`: the contents of `config/master.key`
-   - `HR_EMAIL` and `HR_PASSWORD`: the HR Manager login (password of at least 12 characters)
-3. Deploy. The Dockerfile builds the React app and then the Rails image. On first boot,
-   `db:prepare` loads the schema into the empty database and runs the seed (HR login and
-   10,000 employees). Later deploys only run new migrations.
-
-Notes:
-- Render's free web service sleeps after about 15 minutes idle.
-- Render's free Postgres expires after about 30 days. To reset, create a new database: the next
-  boot seeds it again.
-- Any Postgres works. Set `DATABASE_URL` (for example Neon) instead of using the blueprint's database.
-
-## Project layout
+## Where things are
 
 ```
-app/controllers/api/   JSON API (thin controllers, secure by default)
-app/models/            Employee, SalaryRecord (append-only), User, Country
-app/queries/           EmployeeSearch (directory), SalaryStatistics (insights): read-side SQL
-app/services/          Employees::Create (employee + first salary in one transaction)
-lib/seeding/           deterministic 10,000-employee generator and bulk loader
-frontend/src/          React app: employees/, insights/, auth/, lib/ (API client, money formatting)
-spec/                  RSpec: models, queries, services, requests, seeding
-docs/                  requirements, design, AI workflow
+app/controllers/api/   the API endpoints
+app/models/            Employee, SalaryRecord, User, Country
+app/queries/           the employee search and the salary statistics
+app/services/          adding an employee together with their first salary
+lib/seeding/           the sample data generator (10,000 employees)
+frontend/src/          the React app
+spec/                  backend tests
+docs/                  requirements, design and AI notes
 ```
 
-## Deliberately out of scope
+## What I left out on purpose
 
-These are listed with reasons in [requirements.md](docs/requirements.md): currency conversion,
-deductions, taxes and net pay, hourly pay, approval workflows, multiple users and roles,
-Excel import/export, employee lifecycle (terminations, transfers), and an audit log.
+Currency conversion, taxes and net pay, hourly pay, approval steps, multiple users and roles,
+Excel import/export, things like terminations and transfers, and an audit log. My reasons are in
+[requirements.md](docs/requirements.md).
