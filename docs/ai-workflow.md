@@ -268,3 +268,24 @@ error format.
 - Verified on the real stack (Rails + Vite proxy, curl with a cookie jar): 403 without the CSRF
   token, login with it, the authed directory returns seeded data, 401 without a session, and the
   cookie is `httponly; samesite=lax`.
+
+## 17. Frontend: employee directory (test-first)
+**Prompt (summary):** A searchable, filterable, server-sorted, paginated directory with its state in the URL.
+
+**What happened:**
+- Tests first (red): salary shown annualized in its own currency (with "paid … / month" for monthly
+  pay), "No current salary", links, debounced search in the URL, a filter resetting to page 1, sort
+  toggling with `aria-sort`, pagination, state restored from a shared URL, an empty state with Clear filters.
+- **Design change:** dropped TanStack Table for a plain shadcn `<Table>`. The server does all the
+  sorting and paging, so the library added nothing, and v9 was a new API. design.md was updated.
+  Native `<select>` was used for filters: accessible and reliably testable in jsdom.
+- **Bugs caught:**
+  - My own test asserted the "no match" message *after* clearing the filters, which would be wrong
+    UI. Fixed the test, not the UI.
+  - A lint warning (`set-state-in-effect`) led to a real bug: syncing the search box from the URL
+    trimmed text mid-typing, so "priya⎵" + pause + "sh" became "priyash". Fixed with React's
+    "adjust state during render" pattern and a trimmed comparison. A regression test was added and
+    mutation-checked.
+- `npm audit`: 3 low-severity advisories in `deepmerge`, used by the shadcn CLI's registry code,
+  not at app runtime. npm's only fix (`--force`) downgrades shadcn to 1.0.0, so it was accepted
+  and noted instead of being applied blindly.

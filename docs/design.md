@@ -38,7 +38,7 @@ flowchart LR
 | Layer | Choice |
 |-------|--------|
 | Backend | Ruby 3.2, Rails 8, PostgreSQL 17 |
-| Frontend | React + TypeScript (Vite), React Router, TanStack Query, TanStack Table |
+| Frontend | React + TypeScript (Vite), React Router, TanStack Query |
 | UI | shadcn/ui + Tailwind, shadcn charts (Recharts), react-hook-form + zod |
 | Tests | RSpec + FactoryBot (backend), Vitest + Testing Library (frontend) |
 | Hosting | Render (Docker web service) + Neon (Postgres) |
@@ -187,6 +187,11 @@ sent in the `X-CSRF-Token` header. The single HR user is created from the `HR_EM
 - All money is shown with `Intl.NumberFormat` and an explicit currency code, for example
   `INR 12,00,000 / yr`.
 - Server state goes through TanStack Query, which handles caching, loading and error states. There is no global store.
+- The directory is a plain shadcn `<Table>`. TanStack Table was planned, but the server already
+  sorts, filters and paginates, so a headless table library would only hold column definitions.
+  It was removed (and the installed v9 was a new, unfamiliar API).
+- Directory state (search, filters, sort, page) lives in the URL, so views can be bookmarked and
+  shared and the back button works. Search is debounced (300 ms) and replaces the history entry.
 
 ## 7. Seeding
 
