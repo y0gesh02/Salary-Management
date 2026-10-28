@@ -44,6 +44,9 @@ AI gave options with a recommendation for each. My choices:
 | UI library | shadcn/ui + Tailwind (I picked this over the AI's suggestion, Ant Design) | Modern, composable; tables built with TanStack Table and server-side pagination |
 | Hosting | Render (web) + Neon (Postgres) | Render's free Postgres expires after 30 days; Neon's does not |
 
+_These were the decisions at the start. Two changed during the build: TanStack Table was dropped and
+hosting moved to Render's own Postgres. §5 (My review) and §21 explain why._
+
 ## 4. Requirements document
 **Prompt (summary):** Draft the one-page requirements doc from the agreed decisions.
 
@@ -51,7 +54,19 @@ AI gave options with a recommendation for each. My choices:
 product must answer, the features, the domain rules (money, current salary, normalization),
 what is out of scope and why, and the non-functional requirements.
 
-**My review:** _(to fill in after review — what I changed and why)_
+**My review:** I checked it against my answers in §2 and accepted it without changes. Looking back
+after the build:
+- **It held up.** Apart from the ACME → Incubyte rename, the file hasn't changed since its first
+  commit. All six features were built, and nothing from the out-of-scope list crept back in.
+- **Writing the rules down early paid off.** "Current salary" (latest effective date on or before today,
+  newest record wins a same-day tie) and "never mix currencies" became tests before any code, and
+  they settled several later questions without discussion. For example, the Insights chart shows one currency at a time.
+- **The out-of-scope table was useful during the build.** When I later asked about multiple HR accounts,
+  the answer was already there: one persona for v1, and the auth design leaves room for roles.
+- **What it missed:** it listed the questions Insights must answer, but not what the page should show
+  first. The default view (group by country) opened on an empty chart, because every country has its
+  own currency. I only found this by using the app (§23). Next time I'd add the main screens and their
+  default state to the requirements.
 
 ## 5. Design document
 **Prompt (summary):** Produce the design: architecture, schema, API, the current-salary
@@ -64,7 +79,22 @@ pointer on the employee. A cached pointer goes stale when a future-dated raise t
 without any write, so it would need a scheduled job. **Decision:** compute at read time with
 `DISTINCT ON` and a composite index, and pass `as_of` explicitly so tests are deterministic.
 
-**My review:** _(to fill in)_
+**My review:** I accepted the design, including the current-salary trade-off. I agreed with
+computing it at read time because scheduled raises are part of the requirements. A cached pointer
+would be wrong on the day a raise starts, and keeping it fresh would need a background job and
+another way to fail. Looking back after the build:
+- **The core held:** the data model (append-only salary records), the current-salary query,
+  statistics per currency, a single deploy with a session cookie, and query objects for search and
+  insights. None of it needed redesign. The measured numbers (2–22 ms per directory page, 11–17 ms
+  per insights query) are well inside the 500 ms target.
+- **The library choices changed,** and I updated design.md each time:
+  - TanStack Table was dropped. The server already sorts, filters and pages, so it would only hold column definitions.
+  - react-hook-form + zod were dropped. Validation stays on the server only, so the rules exist in one place, not two that can drift.
+  - Recharts was dropped. The one chart is about 100 lines of HTML that tests can read.
+  - Hosting moved from Neon to Render's own Postgres. This was my choice, for one provider and a simpler setup. I accepted the 30-day expiry, because a new database seeds itself on the next boot.
+- **Lesson:** the decisions that depended on the problem (data, rules, boundaries) were right up front.
+  The ones that depended on tools were guesses. Next time I'd keep library choices out of the design
+  until a feature actually needs them.
 
 ## 6. Project setup: Rails skeleton
 **Prompt (summary):** Set up a Rails 8 app with PostgreSQL and RSpec, in small chunks, with no
@@ -378,6 +408,36 @@ dataviz skill before charting.
   curl does not store `Secure` cookies received over plain HTTP. I passed the cookie explicitly and the
   login succeeded.
 
+
+## 22. Live-site check after deployment
+**Prompt (summary):** "Can you test the live site and confirm everything is working?"
+
+**What happened:**
+- A browser script (Playwright, headless) ran the main HR journeys on the deployed site, logged in with
+  the real production credentials. **15 checks, all passing:**
+  1. the sleeping free-plan service wakes up, and a protected page redirects to login;
+  2. a wrong password is rejected with a clear message;
+  3. login lands on the directory (10,000 employees);
+  4. search narrows the list and is kept in the URL;
+  5. country filter + sort by salary (highest first) + page 2;
+  6. the employee page shows profile, current salary and history;
+  7. adding an employee (EUR picked automatically for Germany);
+  8. a back-dated salary change rejected on the field;
+  9. a raise becoming current and a future raise shown as scheduled;
+  10. editing the profile;
+  11. a deep link surviving a full reload;
+  12. delete with confirmation;
+  13. Insights by department within India (chart and tooltip);
+  14. Insights by country listing all 8 countries;
+  15. logout, after which protected pages need a login again.
+- The test employee was deleted at the end, so the live data was left as it was.
+- **Two first-run failures were in the script, not the app:** a column-header locator that matched
+  the wrong element, and reading the page-2 summary before it had loaded. I fixed the script and
+  re-ran it, with no app changes needed.
+- **Why it mattered:** unit and request tests ran against a test database and a fake API. This was the
+  first proof that the production build, the HTTPS-only cookie, CSRF behind Render's proxy, and the seeded
+  data all work together. In §20, curl had missed a CSRF bug that only a real browser triggers, so
+  a real browser was the right tool here.
 
 ## 23. Insights: headcount chart when grouped by country
 **Prompt (summary):** "I see 'Only one group is paid in SGD… nothing to compare' every time. What is this?"

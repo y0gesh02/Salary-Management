@@ -251,7 +251,8 @@ sent in the `X-CSRF-Token` header. The single HR user is created from the `HR_EM
 
 Tests use FactoryBot, a fixed `as_of` date (never the real clock), and transactional
 fixtures, so they are fast and deterministic. A full browser end-to-end suite is out of
-scope for v1. A single smoke test may be added if time allows.
+scope for v1. Instead, after deploying, a one-off browser script checked 15 main journeys on the
+live site (see the AI workflow log, §22).
 
 ## 9. Performance considerations
 
@@ -290,3 +291,31 @@ scope for v1. A single smoke test may be added if time allows.
   request takes 30–60 s), and the free database expires after about 30 days. Recovery is to create
   a new database; the next boot seeds it. The app only reads `DATABASE_URL`, so any Postgres
   (for example Neon, which doesn't expire) can be used instead.
+
+## 11. Possible improvements
+
+In rough order of value to the HR Manager:
+
+1. **HR assistant (ask questions in plain English).** I'd avoid raw text-to-SQL. On these tables it
+   gives believable but wrong answers: `AVG(amount)` over `salary_records` counts old salaries and
+   scheduled raises, doesn't multiply monthly pay by 12, and can mix currencies. With plain read access it
+   could also read tables like `users`. Instead:
+   - **Tools over the existing query objects** (`SalaryStatistics`, `EmployeeSearch`): the model
+     picks a tool and its inputs, and Rails runs it with the same whitelisted parameters as the UI.
+     The current-salary rule and per-currency grouping stay in one place.
+   - **A sandboxed SQL tool for everything else:** read-only access, `SELECT` only, a timeout and a row
+     limit, over one curated view (`employee_salaries_v`, one row per employee with the current annual salary
+     and currency). The SQL is shown with the answer.
+   - The model is a setting rather than code, and specs use a fake model client, so tests stay deterministic.
+
+   This is the same pattern as semantic-layer products (Snowflake Cortex Analyst, Databricks Genie,
+   WrenAI, 0sql). I looked at 0sql and WrenAI, but each is an extra service to run for two tables. A
+   curated view does the same job here. Trade-off to state up front: names and salaries the question
+   touches are sent to the AI provider.
+2. **Excel import / export.** It's the most likely way HR would move off spreadsheets.
+3. **Audit log and roles.** These become necessary once more than one person can change data. The auth
+   design (login required by default, `current_user`) leaves room for both.
+4. **Scale upgrades, if the data grew 100×:** keyset pagination instead of offset (§9), a `pg_trgm`
+   index for search (§9), and a materialized view of current salaries refreshed daily (§3).
+5. **Hosting:** a paid plan, or Neon for the database, to avoid the free plan's cold start and
+   30-day database expiry (§10).

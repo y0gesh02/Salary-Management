@@ -85,3 +85,9 @@ docs/                  requirements, design and AI notes
 Currency conversion, taxes and net pay, hourly pay, approval steps, multiple users and roles,
 Excel import/export, things like terminations and transfers, and an audit log. My reasons are in
 [requirements.md](docs/requirements.md).
+
+## What I'd build next
+
+An HR assistant that answers questions in plain English, Excel import/export, an audit log with
+roles, and upgrades for a much bigger dataset. The details, including why the assistant wouldn't
+just write SQL against the raw tables, are in [design.md §11](docs/design.md#11-possible-improvements).
