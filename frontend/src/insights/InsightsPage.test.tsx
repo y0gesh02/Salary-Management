@@ -106,9 +106,27 @@ describe('Salary insights', () => {
     expect(tooltip).toHaveTextContent('Range INR 900,000 – INR 6,100,000.50')
   })
 
-  it('explains instead of drawing a one-bar chart', async () => {
-    setup([row('India', 'INR', 200, '2000000.0'), row('United States', 'USD', 50, '140000.0')])
+  it('compares headcount when grouped by country, since each country pays in its own currency', async () => {
+    setup([
+      row('Singapore', 'SGD', 50, '117500.0'),
+      row('India', 'INR', 3607, '2149100.0'),
+      row('Germany', 'EUR', 726, '83250.0'),
+      row('Germany', 'USD', 10, '150000.0'), // paid in another currency: still counts for Germany
+    ])
     renderApp('/insights')
+
+    const chart = await screen.findByRole('figure', { name: 'Headcount by country' })
+    expect(within(chart).getAllByTestId('chart-label').map((label) => label.textContent)).toEqual(['India', 'Germany', 'Singapore'])
+    expect(within(chart).getByText('3,607')).toBeInTheDocument()
+    expect(within(chart).getByText('736')).toBeInTheDocument()
+    // No salary axis here, so there is no currency to pick and no "nothing to compare" message.
+    expect(screen.queryByRole('combobox', { name: 'Chart currency' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/nothing to compare/)).not.toBeInTheDocument()
+  })
+
+  it('explains instead of drawing a one-bar chart', async () => {
+    setup([row('Engineering', 'INR', 200, '2000000.0'), row('Sales', 'USD', 50, '140000.0')])
+    renderApp('/insights?group_by=department')
 
     await screen.findByRole('table', { name: 'Salary statistics' })
     expect(screen.queryByRole('figure')).not.toBeInTheDocument()

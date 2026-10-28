@@ -378,3 +378,16 @@ dataviz skill before charting.
   curl does not store `Secure` cookies received over plain HTTP. I passed the cookie explicitly and the
   login succeeded.
 
+
+## 23. Insights: headcount chart when grouped by country
+**Prompt (summary):** "I see 'Only one group is paid in SGD… nothing to compare' every time. What is this?"
+
+**What happened:**
+- The message was working as designed, but the design was poor: the default view groups by country,
+  each country has its own currency, so the salary chart almost never had two groups to compare, and
+  the landing page opened on an empty-chart message. A real UX gap that my tests encoded as correct.
+- Options offered: a headcount-by-country chart, or opening Insights on Department + India.
+  The developer chose the headcount chart.
+- Test first (red), including a country paid in two currencies, which must be summed. Mutation checks:
+  ascending order, no summing, and country still getting the salary chart. All were caught. Screenshots
+  were checked on desktop and phone.

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useFilterOptions } from '@/employees/queries'
+import { HeadcountChart } from './HeadcountChart'
 import { SalaryRangeChart } from './SalaryRangeChart'
 import { StatisticsTable } from './StatisticsTable'
 import { useSalaryInsights } from './queries'
@@ -55,7 +56,11 @@ export function InsightsPage() {
         <Card><CardContent className="py-6 text-center text-muted-foreground">No current salaries match these filters.</CardContent></Card>
       ) : (
         <div className={`grid gap-4 ${insights.isPlaceholderData ? 'opacity-60 transition-opacity' : ''}`}>
-          <ChartCard rows={insights.data.data} groupName={groupName.toLowerCase()} />
+          {params.group_by === 'country' ? (
+            <HeadcountCard rows={insights.data.data} />
+          ) : (
+            <ChartCard rows={insights.data.data} groupName={groupName.toLowerCase()} />
+          )}
           <Card className="pb-0">
             <CardHeader><CardTitle>All figures</CardTitle></CardHeader>
             <CardContent className="px-0">
@@ -98,6 +103,25 @@ function ChartCard({ rows, groupName }: { rows: InsightRow[]; groupName: string 
             below; to compare within one currency, filter by a country and group by department or job title.
           </p>
         )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// Each country pays in its own currency, so salaries can't be charted against each other;
+// headcount can. Salary spread is charted when grouping by department or job title.
+function HeadcountCard({ rows }: { rows: InsightRow[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Where people work</CardTitle>
+        <CardDescription>
+          Each country pays in its own currency, so salaries are compared in the table below. To chart
+          salary spread, group by department or job title.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <HeadcountChart rows={rows} groupName="country" />
       </CardContent>
     </Card>
   )

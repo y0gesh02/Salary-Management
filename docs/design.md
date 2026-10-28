@@ -217,6 +217,11 @@ sent in the `X-CSRF-Token` header. The single HR user is created from the `HR_EM
   compare, so the page says how to get a comparison (filter by country, group by department)
   instead of drawing a one-bar chart. The table below lists every row and figure, so the chart is
   never the only way to read a value; tooltips work on hover and keyboard focus.
+- **Grouped by country, the chart shows headcount instead.** Every country pays in its own currency
+  (only Germany and France share EUR), so a per-currency salary chart would have one group to
+  show, and the default view used to open on the "nothing to compare" message. Headcount has
+  no currency, so it compares honestly across countries; salaries stay in the table. A country with
+  people paid in two currencies counts both.
 - The chart is ~100 lines of positioned HTML rather than Recharts: one series of simple marks
   doesn't need a library, and the markup stays testable (roles, labels) in jsdom.
 
