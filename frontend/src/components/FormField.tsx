@@ -17,7 +17,8 @@ export function FormField({ id, label, errors = [], children }: Props) {
   const invalid = errors.length > 0
 
   return (
-    <div className="grid gap-2">
+    // content-start: an error under a neighbouring field makes the row taller; keep this one top-aligned.
+    <div className="grid content-start gap-2">
       <Label htmlFor={id}>{label}</Label>
       {children({ id, 'aria-invalid': invalid || undefined, 'aria-describedby': invalid ? errorId : undefined })}
       {invalid && <p id={errorId} className="text-sm text-destructive">{errors.join(', ')}</p>}
