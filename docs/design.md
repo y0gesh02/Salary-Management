@@ -202,6 +202,12 @@ sent in the `X-CSRF-Token` header. The single HR user is created from the `HR_EM
   it sends (past, current, scheduled), plus the nearest scheduled change. Recording a change
   puts the returned employee straight into the cache (no refetch) and invalidates the directory
   and insights. Delete asks for confirmation and states that the salary history goes too.
+- **Add / edit forms** share one `EmployeeForm`. Adding asks for the starting salary too (one
+  request, one transaction on the server; salary errors arrive as `initial_salary.amount` and land
+  on the Amount field). Editing sends profile fields only, because pay changes are new salary records.
+  The currency is pre-selected from the country but never forced, since someone working in
+  Germany may be paid in USD. Department and job title are free text with suggestions
+  (`<datalist>`), so HR can add a new department without a code change.
 
 ## 7. Seeding
 

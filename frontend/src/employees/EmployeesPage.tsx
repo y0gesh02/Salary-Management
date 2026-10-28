@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -16,7 +17,12 @@ export function EmployeesPage() {
 
   return (
     <div className="grid gap-4">
-      <h1 className="text-2xl font-semibold">Employees</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold">Employees</h1>
+        <Button asChild>
+          <Link to="/employees/new">Add employee</Link>
+        </Button>
+      </div>
       <DirectoryFilters params={params} onChange={update} />
 
       <Card className="py-0">

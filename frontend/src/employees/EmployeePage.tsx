@@ -1,12 +1,12 @@
 import { ArrowLeft } from 'lucide-react'
 import { Link, useParams } from 'react-router'
 import type { EmployeeDetail } from '@/api/types'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ApiError } from '@/lib/api'
 import { formatMoney } from '@/lib/money'
 import { DeleteEmployeeButton } from './DeleteEmployeeButton'
+import { EmployeeLoadError } from './EmployeeLoadError'
 import { RecordSalaryDialog } from './RecordSalaryDialog'
 import { SalaryHistory } from './SalaryHistory'
 import { useEmployee } from './queries'
@@ -28,9 +28,7 @@ export function EmployeePage() {
           <Skeleton className="h-32 w-full" />
         </div>
       ) : employee.isError ? (
-        <Alert variant={isNotFound(employee.error) ? 'default' : 'destructive'}>
-          <AlertDescription>{isNotFound(employee.error) ? 'Employee not found.' : employee.error.message}</AlertDescription>
-        </Alert>
+        <EmployeeLoadError error={employee.error} />
       ) : (
         <EmployeeDetails employee={employee.data} />
       )}
@@ -53,6 +51,9 @@ function EmployeeDetails({ employee }: { employee: EmployeeDetail }) {
         </div>
         <div className="flex gap-2">
           <RecordSalaryDialog employee={employee} />
+          <Button variant="outline" asChild>
+            <Link to={`/employees/${employee.id}/edit`}>Edit</Link>
+          </Button>
           <DeleteEmployeeButton employee={employee} />
         </div>
       </div>
@@ -102,8 +103,4 @@ function CurrentSalary({ employee }: { employee: EmployeeDetail }) {
       </CardContent>
     </Card>
   )
-}
-
-function isNotFound(error: Error) {
-  return error instanceof ApiError && error.status === 404
 }

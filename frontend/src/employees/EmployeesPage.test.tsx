@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { EmployeeSummary } from '@/api/types'
 import { setCsrfToken } from '@/lib/api'
 import { fakeApi } from '@/test/fake-api'
+import { filterOptions } from '@/test/fixtures'
 import { renderApp } from '@/test/render-app'
 
 afterEach(() => {
@@ -28,19 +29,12 @@ const newcomer: EmployeeSummary = {
   ...priya, id: 2, full_name: 'New Joiner', email: 'new@acme.example', current_salary: null,
 }
 
-const filters = {
-  countries: [{ code: 'IN', name: 'India', currency: 'INR' }, { code: 'US', name: 'United States', currency: 'USD' }],
-  departments: ['Engineering', 'Sales'],
-  job_titles: ['Account Executive', 'Software Engineer'],
-  currencies: ['INR', 'USD'],
-  periods: ['annual', 'monthly'],
-}
 
 function setup({ employees = [priya, newcomer], total }: { employees?: EmployeeSummary[]; total?: number } = {}) {
   total ??= employees.length
   const calls = fakeApi({
     'GET /api/session': { body: { user: { email: 'hr@acme.test' }, csrf_token: 't' } },
-    'GET /api/filters': { body: filters },
+    'GET /api/filters': { body: filterOptions },
     'GET /api/employees': ({ url }) => ({
       body: { data: employees, meta: { page: Number(url.searchParams.get('page') ?? 1), per_page: 25, total } },
     }),

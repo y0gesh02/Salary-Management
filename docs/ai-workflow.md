@@ -311,3 +311,22 @@ current / scheduled, a "Record salary change" dialog with field-level errors, an
   the single source of truth and its errors are mapped onto fields. design.md §6 records why.
 - Added shadcn `dialog` and `alert-dialog` (Radix: focus trap, Escape, labelled by the title).
 
+## 19. Frontend: add and edit employee forms (test-first)
+**Prompt (summary):** Add-employee form including the starting salary, an edit form for the
+profile, both showing the API's errors on their fields.
+
+**What happened:**
+- Tests first (8, all red): entry points from the directory and the employee page; the exact
+  create body (nested `initial_salary`) and the redirect to the new employee; the currency
+  following the country until HR picks one; profile *and* `initial_salary.*` errors on the right
+  fields; edit pre-filled, sending profile fields only; the model's real hire-date error; unknown employee.
+- **Flaky-by-design test caught:** one test picked a country before the options had loaded from
+  the API. It passed or failed depending on timing. The fix was in the test, which now waits for
+  the option like a user would, and the suite was then run three times in a row to confirm it is stable.
+- **Mutation checks (7, all caught):** currency always / never following the country, the wrong
+  error key for the salary amount, edit sending salary fields, no redirect after edit, no cache
+  write after a change, edit losing the country.
+- **Refactors:** a shared `filterOptions` test fixture (three test files used copies), one
+  `useApplyChange` for all employee mutations (cache write plus invalidating lists, filters and insights),
+  and a shared `EmployeeLoadError`.
+

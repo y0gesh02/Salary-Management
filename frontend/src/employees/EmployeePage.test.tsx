@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { EmployeeDetail, SalaryRecord } from '@/api/types'
 import { setCsrfToken } from '@/lib/api'
 import { fakeApi, type Routes } from '@/test/fake-api'
+import { filterOptions } from '@/test/fixtures'
 import { renderApp } from '@/test/render-app'
 
 afterEach(() => {
@@ -35,18 +36,11 @@ const priya: EmployeeDetail = {
   salary_history: [scheduled, raise, record({})],
 }
 
-const filters = {
-  countries: [{ code: 'IN', name: 'India', currency: 'INR' }, { code: 'US', name: 'United States', currency: 'USD' }],
-  departments: ['Engineering'],
-  job_titles: ['Software Engineer'],
-  currencies: ['INR', 'USD'],
-  periods: ['annual', 'monthly'],
-}
 
 function setup(routes: Routes = {}, employee: EmployeeDetail = priya) {
   return fakeApi({
     'GET /api/session': { body: { user: { email: 'hr@acme.test' }, csrf_token: 'token-1' } },
-    'GET /api/filters': { body: filters },
+    'GET /api/filters': { body: filterOptions },
     'GET /api/employees': { body: { data: [], meta: { page: 1, per_page: 25, total: 0 } } },
     [`GET /api/employees/${employee.id}`]: { body: employee },
     ...routes,
