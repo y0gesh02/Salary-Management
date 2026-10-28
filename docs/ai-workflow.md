@@ -289,3 +289,25 @@ error format.
 - `npm audit`: 3 low-severity advisories in `deepmerge`, used by the shadcn CLI's registry code,
   not at app runtime. npm's only fix (`--force`) downgrades shadcn to 1.0.0, so it was accepted
   and noted instead of being applied blindly.
+
+## 18. Frontend: employee page, salary history, record a change, delete (test-first)
+**Prompt (summary):** The employee page: profile, current salary, the full history labelled past /
+current / scheduled, a "Record salary change" dialog with field-level errors, and delete with confirmation.
+
+**What happened:**
+- Tests first (7, all red before any code): profile and current salary in its own currency;
+  history newest first with status labels; no salary yet plus the next scheduled one; recording a
+  change (pre-filled currency and period, exact request body, CSRF header, page updates from the
+  response); 422 errors announced on the right fields (`toHaveAccessibleDescription`); delete only
+  after confirmation (Cancel sends nothing); unknown employee.
+- **Self-correction in a test:** the 422 test first submitted an empty Amount, but the field is
+  `required`, so a browser would never send that request. Changed the test to submit `0` and
+  expect the server's "must be greater than 0".
+- **Mutation checks:** removed `aria-describedby`, the cache update, the redirect after delete,
+  the "pre-fill from the current salary" rule, and closed the dialog before the save finished.
+  Each was caught. One survived: showing the *furthest* scheduled raise instead of the nearest
+  (`find` vs `findLast`), because the test had only one scheduled record. Added a second one; now caught.
+- **Design change:** dropped react-hook-form + zod (never installed). The server's validation is
+  the single source of truth and its errors are mapped onto fields. design.md §6 records why.
+- Added shadcn `dialog` and `alert-dialog` (Radix: focus trap, Escape, labelled by the title).
+

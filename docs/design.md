@@ -39,7 +39,7 @@ flowchart LR
 |-------|--------|
 | Backend | Ruby 3.2, Rails 8, PostgreSQL 17 |
 | Frontend | React + TypeScript (Vite), React Router, TanStack Query |
-| UI | shadcn/ui + Tailwind, shadcn charts (Recharts), react-hook-form + zod |
+| UI | shadcn/ui + Tailwind, shadcn charts (Recharts) |
 | Tests | RSpec + FactoryBot (backend), Vitest + Testing Library (frontend) |
 | Hosting | Render (Docker web service) + Neon (Postgres) |
 
@@ -192,6 +192,16 @@ sent in the `X-CSRF-Token` header. The single HR user is created from the `HR_EM
   It was removed (and the installed v9 was a new, unfamiliar API).
 - Directory state (search, filters, sort, page) lives in the URL, so views can be bookmarked and
   shared and the back button works. Search is debounced (300 ms) and replaces the history entry.
+- **Validation lives on the server only.** Forms use plain React state, not react-hook-form + zod
+  as first planned. The models are the single source of the rules (for example "effective date
+  can't be before the hire date"), and the API's `422 { errors: { field: [...] } }` is shown next to
+  each field by a small `FormField` component that links the message with `aria-describedby`.
+  Duplicating the rules in zod would mean two copies that can drift. Browsers still enforce
+  `required` and `type="date"`.
+- **Employee page:** the API decides which record is current; the UI only displays the `status`
+  it sends (past, current, scheduled), plus the nearest scheduled change. Recording a change
+  puts the returned employee straight into the cache (no refetch) and invalidates the directory
+  and insights. Delete asks for confirmation and states that the salary history goes too.
 
 ## 7. Seeding
 
