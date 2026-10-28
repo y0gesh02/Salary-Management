@@ -36,3 +36,12 @@
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*
+
+# Frontend: dependencies and build output are produced inside the image
+/frontend/node_modules
+/public/index.html
+
+# Not needed at runtime
+/spec
+/coverage
+/.github

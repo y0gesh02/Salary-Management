@@ -357,3 +357,24 @@ dataviz skill before charting.
     the plot), axis running to 8M for a 5M maximum (finer "nice" steps), squeezed plot and
     overlapping axis labels on a phone (stacked layout), and the header overflowing on a phone.
 
+## 21. Deployment preparation: Docker image, Render Blueprint, README
+**Prompt (summary):** Make the app deployable on Render's free plan and write the README.
+
+**What happened:**
+- **Hosting decision changed:** the original plan was Neon, because Render's free Postgres expires
+  after about 30 days. The developer chose Render's database for a simpler, single-provider setup. Mitigations:
+  the expiry is documented, a new database re-seeds itself on the next boot, and `DATABASE_URL`
+  keeps any Postgres usable.
+- **Dockerfile gap found:** the Rails-generated Dockerfile had no Node step, so a deployed image
+  would have served the "run npm run build" message instead of the app. Added a Node 22 build stage.
+- **Verified by running the production image locally** against a fresh Postgres 17 container:
+  health check, the SPA at `/` and on deep links, login with env-provided credentials, a wrong
+  password rejected, data present, and about 100 MB of RAM.
+- **Over-engineering removed:** I first added a `SEED_ON_BOOT` step to the entrypoint, since the free
+  plan has no shell. The container log showed the seed running *twice*, because `db:prepare` already
+  seeds a database it sets up. Removed my step and relied on the built-in behaviour, then
+  re-verified on a fresh database plus a restart.
+- **Test-harness mistake, not an app bug:** a production-mode login check returned 403 because
+  curl does not store `Secure` cookies received over plain HTTP. I passed the cookie explicitly and the
+  login succeeded.
+

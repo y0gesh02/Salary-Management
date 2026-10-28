@@ -3,7 +3,8 @@
 
 # This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
 # docker build -t salary_management .
-# docker run -d -p 80:3000 -e RAILS_MASTER_KEY=<value from config/master.key> --name salary_management salary_management
+# docker run -d -p 80:3000 -e RAILS_MASTER_KEY=<value from config/master.key> -e DATABASE_URL=... --name salary_management salary_management
+# On Render, render.yaml builds and runs this image (see README).
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
@@ -27,6 +28,14 @@ ENV RAILS_ENV="production" \
     BUNDLE_WITHOUT="development" \
     LD_PRELOAD="/usr/local/lib/libjemalloc.so"
 
+# Build the React app (frontend/) into public/, where Rails serves it from.
+FROM docker.io/library/node:22-slim AS frontend
+WORKDIR /rails/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
@@ -44,8 +53,9 @@ RUN bundle install && \
     # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
     bundle exec bootsnap precompile -j 1 --gemfile
 
-# Copy application code
+# Copy application code, then the compiled frontend
 COPY . .
+COPY --from=frontend /rails/public/ ./public/
 
 # Precompile bootsnap code for faster boot times.
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495

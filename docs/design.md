@@ -21,7 +21,7 @@ flowchart LR
     S --> M
   end
 
-  M --> PG[(PostgreSQL on Neon)]
+  M --> PG[(PostgreSQL 17<br/>Render free)]
 ```
 
 **Layering rules**
@@ -41,7 +41,7 @@ flowchart LR
 | Frontend | React + TypeScript (Vite), React Router, TanStack Query |
 | UI | shadcn/ui + Tailwind; the one chart is plain HTML/CSS (no chart library) |
 | Tests | RSpec + FactoryBot (backend), Vitest + Testing Library (frontend) |
-| Hosting | Render (Docker web service) + Neon (Postgres) |
+| Hosting | Render (Docker web service + free Postgres), via `render.yaml` |
 
 Repository layout:
 
@@ -271,10 +271,17 @@ scope for v1. A single smoke test may be added if time allows.
 
 ## 10. Deployment
 
-- A Dockerfile (Rails 8 default) builds the frontend (`npm ci && npm run build`) and then the
-  Rails image.
-- Render free web service with `DATABASE_URL` pointing to Neon. Migrations run on deploy and
-  the seed runs once.
-- **Known limitation:** Render's free tier sleeps after about 15 minutes idle, so the first
-  request takes 30–60 seconds. This will be noted in the README and handled before recording
-  the demo.
+- **Image:** a multi-stage Dockerfile. A Node 22 stage runs `npm ci && npm run build` (the React
+  app is built into `public/`), and the Rails stages bundle gems and copy the built app in. The final
+  image runs as a non-root user, is about 400 MB, and uses about 100 MB of RAM at idle.
+- **Render Blueprint (`render.yaml`):** a free Postgres 17 database and a free Docker web service,
+  wired together with `DATABASE_URL` from the database. Secrets (`RAILS_MASTER_KEY`, `HR_EMAIL`,
+  `HR_PASSWORD`) are entered in Render, never committed.
+- **Migrations and seed:** `bin/docker-entrypoint` runs `db:prepare` on every boot. On an empty
+  database it loads the schema *and runs the seed* (HR login plus 10,000 employees, about 2 s); on later
+  boots it only applies new migrations. Verified locally against a fresh Postgres 17 container,
+  including a restart, which does not seed again.
+- **Known limitations of the free plan:** the web service sleeps after about 15 minutes idle (first
+  request takes 30–60 s), and the free database expires after about 30 days. Recovery is to create
+  a new database; the next boot seeds it. The app only reads `DATABASE_URL`, so any Postgres
+  (for example Neon, which doesn't expire) can be used instead.
